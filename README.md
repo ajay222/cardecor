@@ -1,41 +1,20 @@
-# Car Décor Business Manager V2.2
+# Car Décor Business Manager V2.10
 
-## User flow
+## Fixed Cash and Online payment calculation
 
-The website opens directly on the **Representative page**. There is no representative login.
+Fixed a Representative-side bug where the displayed Cash + UPI split was not passed correctly to the sale validation. Example:
 
-### Representative
-- Direct access on site load
-- Select category
-- Enter last 4 digits of car number
-- Select décor product when applicable
-- Price is automatically applied
-- Submit sale
-- See today's submitted entries
+Final Amount ₹600
+- Cash ₹300
+- UPI ₹300
+- Total Payment ₹600
 
-### Admin
-The Representative page contains an **Admin Access** section.
-Admin enters credentials there to open the Admin dashboard.
+Now this submits successfully.
 
-Discounts:
-- Representative and Admin can enter a discount percentage.
-- Final amount is calculated automatically from the original selling price.
-- Reports and profit use the discounted final amount.
+Payment modes:
+1. Cash
+2. UPI
+3. Card
+4. Cash and Online
 
-Admin features:
-- Today's revenue
-- Today's expenses
-- Today's profit
-- Sales history
-- Décor product catalogue and pricing
-- Expense entry
-- Monthly net sales
-- Monthly net profit
-- Category breakdown
-
-Demo Admin:
-- Username: `admin`
-- Password: `admin123`
-
-## Important
-This is a browser-local prototype. The demo admin authentication is not production security. The next production step is Supabase Auth + PostgreSQL with Admin-only authentication and direct Representative access.
+For Cash and Online, Cash Amount + UPI Amount must equal the Final Amount.
