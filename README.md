@@ -1,8 +1,7 @@
-# Satish Reddy Car Decor V2.16
+# Satish Reddy Car Decor V2.17
 
 Fix:
-- Dashboard Quick Actions now display the current Car Washing and Alignment & Balancing selling prices from Supabase.
-- No hard-coded ₹600 remains in the dashboard quick-action price display.
-- Existing Services management and Representative pricing remain unchanged.
-
-No new database migration is required if V2.15's service_prices migration has already been run.
+- Representative page no longer hard-codes ₹600 for standard services.
+- Car Washing and Alignment & Balancing now display the current live selling price from Supabase.
+- Discount/final amount calculation uses the same live price.
+- No new database migration is required.

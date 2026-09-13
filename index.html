@@ -358,7 +358,7 @@ async function addSale(){
 function repTypeChanged(){
  let t=document.getElementById('repType').value,deco=t==='Décor Item',other=t==='Other';
  document.getElementById('repProductWrap').classList.toggle('hidden',!deco);document.getElementById('repOtherWrap').classList.toggle('hidden',!other);document.getElementById('repOtherAmountWrap').classList.toggle('hidden',!other);
- if(deco){fillProductSelect('repProduct');repAmountChanged();}else if(other){document.getElementById('repOtherDesc').value='';document.getElementById('repOtherAmount').value='';repAmountChanged();}else{document.getElementById('repDiscount').value=0;document.getElementById('repAmount').innerHTML='<b>Original: ₹600 &nbsp; | &nbsp; Discount: 0% &nbsp; | &nbsp; Final Amount: ₹600</b>';}
+ if(deco){fillProductSelect('repProduct');repAmountChanged();}else if(other){document.getElementById('repOtherDesc').value='';document.getElementById('repOtherAmount').value='';repAmountChanged();}else{document.getElementById('repDiscount').value=0;repAmountChanged();}
 }
 function repAmountChanged(){
  let t=document.getElementById('repType').value,price=serviceByName(t).sell;if(t==='Décor Item'){let p=state.products.find(x=>x.id==document.getElementById('repProduct').value);price=p?.sell||0;}else if(t==='Other')price=Number(document.getElementById('repOtherAmount').value||0);
