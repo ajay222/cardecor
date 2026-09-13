@@ -287,11 +287,13 @@ async function addSaleData(type,car,pid=null,discount=0,payment='Cash',customDes
   let splitTotal=Math.round((cashAmount+upiAmount)*100)/100;if(Math.abs(splitTotal-finalPrice)>0.01){alert('Cash + UPI total must equal the Final Amount of '+money(finalPrice)+'.');return false;}
  }else{cashAmount=payment==='Cash'?finalPrice:0;upiAmount=payment==='UPI'?finalPrice:0;cardAmount=payment==='Card'?finalPrice:0;}
  const payload={car_last4:car,category:type,product_id:productId,item_name:item,description,selling_price:price,discount_percent:discount,final_amount:finalPrice,payment_method:payment,cash_amount:cashAmount,upi_amount:upiAmount,card_amount:cardAmount,cost_amount:cost};
- const {data,error}=await sb.from('sales').insert(payload).select().single();
- if(error){console.error(error);alert('Sale could not be saved: '+error.message);return false;}
- const mapped=mapSale(data);sessionSales.unshift(mapped);
- if(role==='admin'){state.sales.unshift(mapped);}
- renderAll();return true;
+ const {error}=await sb.from('sales').insert(payload);
+if(error){console.error(error);alert('Sale could not be saved: '+error.message);return false;}
+const mapped=mapSale({...payload,id:null,sale_date:today(),sale_time:new Date().toISOString()});
+sessionSales.unshift(mapped);
+if(role==='admin'){state.sales.unshift(mapped);}
+renderAll();return true;
+ 
 }
 
 async function addSale(){
@@ -299,7 +301,7 @@ async function addSale(){
  let basePrice=Number(document.getElementById('salePrice').value||0),finalPrice=discountedAmount(basePrice,discount),split=getPaymentSplit('sale',finalPrice);
  if(await addSaleData(t,car,pid,discount,payment,desc,customPrice,customCost,split.cash,split.upi,split.card)){
   alert('Sale submitted. Final amount: '+money(finalPrice));document.getElementById('saleCar').value='';document.getElementById('saleDiscount').value=0;document.getElementById('saleOtherDesc').value='';document.getElementById('saleCashAmount').value=0;document.getElementById('saleUPIAmount').value=0;updateSaleFinal();updateSplitTotal('sale');
-  await loadAdminData();renderAll();
+  if(role==='admin'){await loadAdminData();renderAll();}else{await loadProducts();renderAll();}
  }
 }
 

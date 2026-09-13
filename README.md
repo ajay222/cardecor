@@ -1,11 +1,26 @@
-# Car Décor Business Manager V2.11 — Supabase Connected
+# Car Décor Business Manager V2.12
 
-V2.10 UI is now connected to the Supabase project using the browser-safe publishable key.
+## Database-connected fixes
 
-## Important setup
-1. Run `supabase_rls_admin.sql` in Supabase SQL Editor.
-2. Create one Admin user in Supabase Authentication → Users.
-3. Use that email/password in the Admin Login section.
-4. Do NOT put the database password or service-role/secret key in the website.
+### Representative
+- Uses Supabase to load active décor products.
+- Inserts sales without requesting the inserted row back.
+- Does NOT need SELECT permission on the `sales` table.
+- After a sale, refreshes products only; it does not make an Admin-only sales query.
 
-Representative access remains login-free. Sales are inserted directly into Supabase. Admin reads sales/products/expenses after Supabase Auth login.
+### Payment modes
+1. Cash
+2. UPI
+3. Card
+4. Cash and Online
+
+Cash and Online requires Cash + UPI to equal the final amount.
+
+### Admin
+- Uses Supabase Authentication.
+- Can read/manage sales, products and expenses according to RLS.
+- Daily/monthly reporting remains database-backed.
+
+### Required database migration
+Run `supabase_v2_12_migration.sql` once in Supabase SQL Editor. It adds
+`expense_type` to `expenses`, matching the Admin expense form.
