@@ -17,6 +17,11 @@ The website opens directly on the **Representative page**. There is no represent
 The Representative page contains an **Admin Access** section.
 Admin enters credentials there to open the Admin dashboard.
 
+Discounts:
+- Representative and Admin can enter a discount percentage.
+- Final amount is calculated automatically from the original selling price.
+- Reports and profit use the discounted final amount.
+
 Admin features:
 - Today's revenue
 - Today's expenses
