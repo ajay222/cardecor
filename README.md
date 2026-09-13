@@ -1,26 +1,13 @@
-# Car Décor Business Manager V2.12
+# Satish Reddy Car Decor V2.15
 
-## Database-connected fixes
+New feature:
+- Admin > Services tab
+- Edit Car Washing selling/cost price
+- Edit Alignment & Balancing selling/cost price
+- Prices are stored in Supabase
+- Representative automatically uses current service prices
+- Admin sale screen also uses current service prices
+- No need to edit index.html when prices change
+- Décor products and Other continue to work as before
 
-### Representative
-- Uses Supabase to load active décor products.
-- Inserts sales without requesting the inserted row back.
-- Does NOT need SELECT permission on the `sales` table.
-- After a sale, refreshes products only; it does not make an Admin-only sales query.
-
-### Payment modes
-1. Cash
-2. UPI
-3. Card
-4. Cash and Online
-
-Cash and Online requires Cash + UPI to equal the final amount.
-
-### Admin
-- Uses Supabase Authentication.
-- Can read/manage sales, products and expenses according to RLS.
-- Daily/monthly reporting remains database-backed.
-
-### Required database migration
-Run `supabase_v2_12_migration.sql` once in Supabase SQL Editor. It adds
-`expense_type` to `expenses`, matching the Admin expense form.
+Run supabase_v2_15_migration.sql once in Supabase SQL Editor before using the new Services tab.
