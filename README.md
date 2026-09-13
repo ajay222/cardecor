@@ -1,13 +1,8 @@
-# Satish Reddy Car Decor V2.15
+# Satish Reddy Car Decor V2.16
 
-New feature:
-- Admin > Services tab
-- Edit Car Washing selling/cost price
-- Edit Alignment & Balancing selling/cost price
-- Prices are stored in Supabase
-- Representative automatically uses current service prices
-- Admin sale screen also uses current service prices
-- No need to edit index.html when prices change
-- Décor products and Other continue to work as before
+Fix:
+- Dashboard Quick Actions now display the current Car Washing and Alignment & Balancing selling prices from Supabase.
+- No hard-coded ₹600 remains in the dashboard quick-action price display.
+- Existing Services management and Representative pricing remain unchanged.
 
-Run supabase_v2_15_migration.sql once in Supabase SQL Editor before using the new Services tab.
+No new database migration is required if V2.15's service_prices migration has already been run.
