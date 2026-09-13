@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Décor Business Manager V2</title>
+<style>
+:root{--nav:#0b1320;--accent:#0f766e;--accent2:#115e59;--bg:#f3f5f7;--card:#fff;--text:#17202a;--muted:#667085;--line:#e4e7ec;--danger:#b42318;--good:#087443}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+button,input,select{font:inherit}.hidden{display:none!important}
+.top{background:var(--nav);color:#fff;padding:15px 18px;position:sticky;top:0;z-index:10}.topin{max-width:1250px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:15px}.brand{font-weight:850;font-size:19px}.brand small{display:block;color:#aeb8c5;font-size:11px;font-weight:500}.top button{border:1px solid #334155;background:transparent;color:#fff;border-radius:9px;padding:8px 12px;cursor:pointer}
+.wrap{max-width:1250px;margin:20px auto;padding:0 15px}.tabs{display:flex;gap:7px;overflow:auto;margin-bottom:18px}.tabs button{background:#fff;border:0;border-radius:10px;padding:11px 15px;font-weight:750;color:#596579;white-space:nowrap;cursor:pointer}.tabs button.active{background:var(--accent);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:17px;box-shadow:0 6px 18px rgba(16,24,40,.05)}.stat .lbl{font-size:12px;color:var(--muted)}.stat .val{font-size:26px;font-weight:850;margin-top:5px}.stat .sub{font-size:11px;color:var(--muted);margin-top:3px}
+.two{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;margin-top:14px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+h2{font-size:18px;margin:0 0 14px}h3{font-size:14px;margin:0 0 10px}.title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px}.title button,.secondary{border:1px solid var(--line);background:#fff;padding:8px 11px;border-radius:9px;font-weight:700;cursor:pointer}
+.form{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.full{grid-column:1/-1}label{font-size:11px;color:#52606d;font-weight:800;display:block;margin-bottom:6px}input,select{width:100%;padding:11px;border:1px solid #d0d5dd;border-radius:9px;background:#fff}input:focus,select:focus{outline:2px solid #b7e2de;border-color:var(--accent)}
+.primary{width:100%;border:0;border-radius:10px;padding:12px;background:var(--accent);color:#fff;font-weight:850;cursor:pointer;margin-top:11px}.primary:hover{background:var(--accent2)}
+.quick{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.quick button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:15px;cursor:pointer;font-weight:800}.quick button:hover{border-color:var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:10px 7px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:10px;text-transform:uppercase;color:var(--muted)}.pill{display:inline-block;padding:4px 7px;border-radius:99px;background:#e7f5f3;color:var(--accent);font-size:10px;font-weight:800}.good{color:var(--good)}.bad{color:var(--danger)}
+.note{font-size:12px;color:var(--muted);line-height:1.5}.empty{text-align:center;color:var(--muted);padding:25px}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#0b1320,#155e59)}.loginbox{background:#fff;width:min(420px,100%);padding:25px;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.2)}.loginbox h1{margin:0 0 5px}.loginbox p{color:var(--muted);font-size:13px}.role{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0}.role button{padding:11px;border:1px solid var(--line);background:#fff;border-radius:9px;font-weight:800;cursor:pointer}.role button.sel{background:#e7f5f3;border-color:#75c7bf;color:var(--accent)}
+.badge{font-size:11px;background:#eef2f6;padding:5px 8px;border-radius:99px;color:#475467;font-weight:750}
+.bar{height:9px;background:#edf0f2;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--accent)}
+@media(max-width:850px){.grid{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.three{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.wrap{padding:0 10px}.grid,.form,.three{grid-template-columns:1fr 1fr}.quick{grid-template-columns:1fr}.card{padding:14px}.stat .val{font-size:22px}.hide-mobile{display:none}}
+</style>
+</head>
+<body>
+<div id="login" class="hidden"></div>
+
+<div id="app">
+<header class="top"><div class="topin"><div class="brand">🚘 Car Décor Manager<small id="userLabel"></small></div><button onclick="logout()">Logout</button></div></header>
+<div class="wrap">
+<div id="adminUI" class="hidden">
+<nav class="tabs">
+<button class="active" onclick="tab('dash',this)">Dashboard</button>
+<button onclick="tab('sales',this)">Sales</button>
+<button onclick="tab('products',this)">Products</button>
+<button onclick="tab('expenses',this)">Expenses</button>
+<button onclick="tab('reports',this)">Monthly Report</button>
+</nav>
+
+<section id="dash">
+<div class="title"><h2>Admin Dashboard</h2><span class="badge" id="today"></span></div>
+<div class="grid">
+<div class="card stat"><div class="lbl">Today's Revenue</div><div class="val" id="todayRevenue">₹0</div><div class="sub" id="todayTx">0 transactions</div></div>
+<div class="card stat"><div class="lbl">Today's Expenses</div><div class="val" id="todayExpense">₹0</div><div class="sub">Shop + other expenses</div></div>
+<div class="card stat"><div class="lbl">Today's Profit</div><div class="val good" id="todayProfit">₹0</div><div class="sub">Revenue − cost − expenses</div></div>
+<div class="card stat"><div class="lbl">Cars Serviced</div><div class="val" id="todayCars">0</div><div class="sub">Today's sales entries</div></div>
+</div>
+<div class="two">
+<div class="card"><h2>Today's Category Sales</h2><div id="catToday"></div></div>
+<div class="card"><h2>Quick Actions</h2><div class="quick">
+<button onclick="tab('sales');quick('Car Washing')">🚿 Washing<br><b>₹600</b></button>
+<button onclick="tab('sales');quick('Alignment & Balancing')">🛞 Alignment<br><b>₹600</b></button>
+<button onclick="tab('sales');quick('Décor Item')">✨ Décor Sale</button>
+<button onclick="tab('expenses')">💸 Add Expense</button>
+</div></div>
+</div>
+<div class="card" style="margin-top:14px"><div class="title"><h2>Recent Sales</h2><button onclick="tab('sales')">View all</button></div><div id="recentSales"></div></div>
+</section>
+
+<section id="sales" class="hidden">
+<div class="two">
+<div class="card"><h2>Record Sale</h2>
+<div class="form">
+<div><label>Category</label><select id="saleType" onchange="saleTypeChanged()"><option>Car Washing</option><option>Alignment & Balancing</option><option>Décor Item</option></select></div>
+<div><label>Last 4 digits of car number</label><input id="saleCar" maxlength="4" inputmode="numeric" placeholder="4582"></div>
+<div class="full"><label>Décor Product / Service</label><select id="saleProduct" onchange="productChanged()"></select></div>
+<div><label>Selling Price (₹)</label><input id="salePrice" type="number" readonly></div>
+<div><label>Cost (₹)</label><input id="saleCost" type="number" readonly></div>
+</div>
+<button class="primary" onclick="addSale()">Submit Sale</button>
+<p class="note">No representative login is required. Open the Representative page directly and submit each sale. Product prices are controlled by Admin.</p>
+</div>
+<div class="card"><h2>Standard Services</h2><p>🚿 <b>Car Washing</b><br>₹600</p><p>🛞 <b>Alignment & Balancing</b><br>₹600</p><hr style="border:0;border-top:1px solid var(--line)"><p class="note">For décor products, choose the product from the Admin catalogue. Selling price and cost are automatically applied.</p></div>
+</div>
+<div class="card" style="margin-top:14px"><h2>All Sales</h2><div id="salesTable"></div></div>
+</section>
+
+<section id="products" class="hidden">
+<div class="two">
+<div class="card"><h2>Add Décor Product</h2><div class="form">
+<div class="full"><label>Product Name</label><input id="pName" placeholder="Floor Mats"></div>
+<div><label>Selling Price (₹)</label><input id="pSell" type="number" min="0"></div>
+<div><label>Cost Price (₹)</label><input id="pCost" type="number" min="0"></div>
+</div><button class="primary" onclick="addProduct()">Add Product</button></div>
+<div class="card"><h2>Suggested Categories</h2><p class="note">Mats • Glass Film • Seat Covers • Door Visors • Steering Covers • LED Lights • Car Perfumes • Car Covers • Accessories • Other Décor</p></div>
+</div>
+<div class="card" style="margin-top:14px"><h2>Product Catalogue</h2><div id="productTable"></div></div>
+</section>
+
+<section id="expenses" class="hidden">
+<div class="two">
+<div class="card"><h2>Add Expense</h2><div class="form">
+<div><label>Expense Type</label><select id="expType"><option>Shop Expense</option><option>Product Purchase</option><option>Staff Expense</option><option>Other Expense</option></select></div>
+<div><label>Amount (₹)</label><input id="expAmount" type="number" min="0"></div>
+<div class="full"><label>Description</label><input id="expDesc" placeholder="Electricity, cleaning supplies, etc."></div>
+</div><button class="primary" onclick="addExpense()">Save Expense</button><p class="note">Use this for business expenses. Product cost is already captured against each sale, so avoid entering the same product purchase twice.</p></div>
+<div class="card"><h2>Expense Summary</h2><div id="expenseSummary"></div></div>
+</div>
+<div class="card" style="margin-top:14px"><h2>Expense History</h2><div id="expenseTable"></div></div>
+</section>
+
+<section id="reports" class="hidden">
+<div class="card"><div class="title"><h2>Monthly Report</h2><input id="month" type="month" style="max-width:175px" onchange="renderReport()"></div>
+<div class="grid">
+<div class="card stat"><div class="lbl">Net Sales</div><div class="val" id="mRevenue">₹0</div></div>
+<div class="card stat"><div class="lbl">Product / Service Cost</div><div class="val" id="mCost">₹0</div></div>
+<div class="card stat"><div class="lbl">Other Expenses</div><div class="val" id="mExpense">₹0</div></div>
+<div class="card stat"><div class="lbl">Net Profit</div><div class="val good" id="mProfit">₹0</div></div>
+</div>
+<div style="margin-top:15px" id="reportBreakdown"></div>
+</div>
+</section>
+</div>
+
+<div id="repUI">
+<div class="title"><h2>Representative — New Sale</h2><span class="badge">Direct Access</span></div>
+<div class="card" style="max-width:620px">
+<div class="form">
+<div class="full"><label>Category</label><select id="repType" onchange="repTypeChanged()"><option>Car Washing</option><option>Alignment & Balancing</option><option>Décor Item</option></select></div>
+<div class="full"><label>Last 4 digits of car number</label><input id="repCar" maxlength="4" inputmode="numeric" placeholder="Enter last 4 digits"></div>
+<div id="repProductWrap" class="full"><label>Décor Item</label><select id="repProduct"></select></div>
+<div class="full"><div id="repAmount" class="card" style="background:#f8fafc"><b>Amount: ₹600</b></div></div>
+</div>
+<button class="primary" onclick="repSubmit()">Submit</button>
+</div>
+<div class="card" style="max-width:620px;margin-top:14px">
+<h3>🔐 Admin Access</h3>
+<p class="note">Representatives do not need to log in. Admin can open the management dashboard from here.</p>
+<button class="secondary" style="width:100%;padding:11px" onclick="openAdminLogin()">Admin Login</button>
+<div id="adminLoginInline" class="hidden" style="margin-top:12px">
+<div class="form">
+<div><label>Username</label><input id="inlineAdminUser" value="admin"></div>
+<div><label>Password</label><input id="inlineAdminPass" type="password" value="admin123"></div>
+</div>
+<button class="primary" onclick="loginAdminInline()">Open Admin Dashboard</button>
+</div>
+</div>
+<div class="card" style="max-width:620px;margin-top:14px"><h3>Today's Entries</h3><div id="repRecent"></div></div>
+</div>
+</div></div>
+
+<script>
+const DB='carDecorV2Demo';
+let state=JSON.parse(localStorage.getItem(DB)||'null')||{
+ products:[
+  {id:1,name:'Floor Mats',sell:2500,cost:1500},
+  {id:2,name:'Glass Film',sell:3000,cost:1800},
+  {id:3,name:'Seat Covers',sell:8000,cost:5000},
+  {id:4,name:'Door Visors',sell:1200,cost:700},
+  {id:5,name:'Car Perfume',sell:500,cost:250}
+ ],
+ sales:[], expenses:[]
+};
+let role='admin';
+const today=()=>new Date().toISOString().slice(0,10);
+const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
+function persist(){localStorage.setItem(DB,JSON.stringify(state));renderAll()}
+function openAdminLogin(){
+ document.getElementById('adminLoginInline').classList.toggle('hidden');
+ document.getElementById('inlineAdminUser').focus();
+}
+function loginAdminInline(){
+ let u=document.getElementById('inlineAdminUser').value.trim().toLowerCase();
+ let p=document.getElementById('inlineAdminPass').value;
+ if(u==='admin'&&p==='admin123'){
+   role='admin';
+   document.getElementById('userLabel').textContent='Admin';
+   document.getElementById('adminUI').classList.remove('hidden');
+   document.getElementById('repUI').classList.add('hidden');
+   renderAll();
+ }else alert('Invalid admin credentials.');
+}
+function logout(){
+ role='rep';
+ document.getElementById('userLabel').textContent='Representative — direct access';
+ document.getElementById('adminUI').classList.add('hidden');
+ document.getElementById('repUI').classList.remove('hidden');
+ renderAll();
+}
+function tab(id,btn){document.querySelectorAll('#adminUI section').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');if(btn){document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}renderAll()}
+function quick(t){document.getElementById('saleType').value=t;saleTypeChanged();document.getElementById('saleCar').focus()}
+function saleTypeChanged(){
+let t=document.getElementById('saleType').value, deco=t==='Décor Item';
+document.getElementById('saleProduct').parentElement.classList.toggle('hidden',!deco);
+document.getElementById('salePrice').readOnly=deco?true:true;document.getElementById('saleCost').readOnly=true;
+if(deco)productChanged();else{document.getElementById('salePrice').value=600;document.getElementById('saleCost').value=0}
+}
+function fillProductSelect(id){
+let s=document.getElementById(id);s.innerHTML=state.products.map(p=>`<option value="${p.id}">${p.name} — ${money(p.sell)}</option>`).join('');
+}
+function productChanged(){let p=state.products.find(x=>x.id==document.getElementById('saleProduct').value);document.getElementById('salePrice').value=p?.sell||0;document.getElementById('saleCost').value=p?.cost||0}
+function addSaleData(type,car,pid=null){
+if(!/^\d{4}$/.test(car)){alert('Enter exactly 4 digits of the car number.');return false}
+let price=600,cost=0,item=type;
+if(type==='Décor Item'){let p=state.products.find(x=>x.id==pid);if(!p){alert('Select a décor product.');return false}price=p.sell;cost=p.cost;item=p.name}
+state.sales.unshift({id:Date.now()+Math.random(),date:today(),time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),type,car,item,price,cost});
+persist();return true
+}
+function addSale(){let t=document.getElementById('saleType').value,car=document.getElementById('saleCar').value.trim(),pid=document.getElementById('saleProduct').value;if(addSaleData(t,car,pid)){alert('Sale submitted.');document.getElementById('saleCar').value=''}}
+function repTypeChanged(){let t=document.getElementById('repType').value,deco=t==='Décor Item';document.getElementById('repProductWrap').classList.toggle('hidden',!deco);if(deco){fillProductSelect('repProduct');repAmountChanged()}else document.getElementById('repAmount').innerHTML='<b>Amount: ₹600</b>'}
+function repAmountChanged(){let p=state.products.find(x=>x.id==document.getElementById('repProduct').value);document.getElementById('repAmount').innerHTML=`<b>Amount: ${money(p?.sell||0)}</b>`}
+function repSubmit(){let t=document.getElementById('repType').value,car=document.getElementById('repCar').value.trim(),pid=document.getElementById('repProduct').value;if(addSaleData(t,car,pid)){alert('Sale submitted successfully.');document.getElementById('repCar').value='';renderRep()}}
+function addProduct(){let name=document.getElementById('pName').value.trim(),sell=Number(document.getElementById('pSell').value),cost=Number(document.getElementById('pCost').value);if(!name||sell<=0||cost<0){alert('Enter product name, selling price and cost.');return}state.products.push({id:Date.now(),name,sell,cost});document.getElementById('pName').value='';document.getElementById('pSell').value='';document.getElementById('pCost').value='';persist();alert('Product added.')}
+function deleteProduct(id){if(confirm('Delete this product from the catalogue? Existing sales remain unchanged.')){state.products=state.products.filter(p=>p.id!==id);persist()}}
+function addExpense(){let type=document.getElementById('expType').value,amount=Number(document.getElementById('expAmount').value),desc=document.getElementById('expDesc').value.trim();if(amount<=0){alert('Enter an expense amount.');return}state.expenses.unshift({id:Date.now(),date:today(),time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),type,amount,desc});document.getElementById('expAmount').value='';document.getElementById('expDesc').value='';persist();alert('Expense saved.')}
+function deleteExpense(id){if(confirm('Delete this expense?')){state.expenses=state.expenses.filter(x=>x.id!==id);persist()}}
+function salesTable(arr,full=true){if(!arr.length)return '<div class="empty">No sales found.</div>';return `<div style="overflow:auto"><table><thead><tr><th>Date</th><th>Time</th><th>Car</th><th>Category</th><th>Item</th><th>Sale</th><th>Cost</th>${full?'<th>Profit</th>':''}</tr></thead><tbody>${arr.map(s=>`<tr><td>${s.date}</td><td>${s.time}</td><td><b>${s.car}</b></td><td><span class="pill">${s.type}</span></td><td>${s.item}</td><td>${money(s.price)}</td><td>${money(s.cost)}</td>${full?`<td class="${s.price-s.cost>=0?'good':'bad'}">${money(s.price-s.cost)}</td>`:''}</tr>`).join('')}</tbody></table></div>`}
+function expenseTable(arr){if(!arr.length)return '<div class="empty">No expenses found.</div>';return `<div style="overflow:auto"><table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th></tr></thead><tbody>${arr.map(e=>`<tr><td>${e.date} ${e.time}</td><td>${e.type}</td><td>${e.desc||'-'}</td><td>${money(e.amount)}</td></tr>`).join('')}</tbody></table></div>`}
+function renderDash(){let a=state.sales.filter(s=>s.date===today()),e=state.expenses.filter(x=>x.date===today()),rev=a.reduce((n,s)=>n+s.price,0),cost=a.reduce((n,s)=>n+s.cost,0),ex=e.reduce((n,x)=>n+x.amount,0);document.getElementById('today').textContent=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});document.getElementById('todayRevenue').textContent=money(rev);document.getElementById('todayExpense').textContent=money(ex);document.getElementById('todayProfit').textContent=money(rev-cost-ex);document.getElementById('todayTx').textContent=a.length+' transaction'+(a.length===1?'':'s');document.getElementById('todayCars').textContent=a.length;let c={};a.forEach(s=>c[s.type]=(c[s.type]||0)+s.price);document.getElementById('catToday').innerHTML=Object.keys(c).length?Object.entries(c).map(([k,v])=>`<p style="display:flex;justify-content:space-between"><span>${k}</span><b>${money(v)}</b></p>`).join(''):'<div class="empty">No sales today.</div>';document.getElementById('recentSales').innerHTML=salesTable(a.slice(0,8),false)}
+function renderSales(){fillProductSelect('saleProduct');saleTypeChanged();document.getElementById('salesTable').innerHTML=salesTable(state.sales)}
+function renderProducts(){document.getElementById('productTable').innerHTML=state.products.length?`<div style="overflow:auto"><table><thead><tr><th>Product</th><th>Selling</th><th>Cost</th><th>Profit / Sale</th><th></th></tr></thead><tbody>${state.products.map(p=>`<tr><td><b>${p.name}</b></td><td>${money(p.sell)}</td><td>${money(p.cost)}</td><td class="good">${money(p.sell-p.cost)}</td><td><button class="secondary" onclick="deleteProduct(${p.id})">Delete</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No products.</div>'}
+function renderExpenses(){let t=state.expenses.filter(e=>e.date===today()).reduce((n,e)=>n+e.amount,0);document.getElementById('expenseSummary').innerHTML=`<h3>Today's Expenses</h3><div style="font-size:28px;font-weight:850">${money(t)}</div><p class="note">All recorded expenses: ${money(state.expenses.reduce((n,e)=>n+e.amount,0))}</p>`;document.getElementById('expenseTable').innerHTML=expenseTable(state.expenses)}
+function renderReport(){let m=document.getElementById('month').value||today().slice(0,7),a=state.sales.filter(s=>s.date.startsWith(m)),e=state.expenses.filter(x=>x.date.startsWith(m)),rev=a.reduce((n,s)=>n+s.price,0),cost=a.reduce((n,s)=>n+s.cost,0),ex=e.reduce((n,x)=>n+x.amount,0);document.getElementById('mRevenue').textContent=money(rev);document.getElementById('mCost').textContent=money(cost);document.getElementById('mExpense').textContent=money(ex);document.getElementById('mProfit').textContent=money(rev-cost-ex);let c={};a.forEach(s=>{c[s.type]??={sale:0,cost:0,count:0};c[s.type].sale+=s.price;c[s.type].cost+=s.cost;c[s.type].count++});document.getElementById('reportBreakdown').innerHTML=Object.keys(c).length?`<h3>Category Breakdown</h3><div style="overflow:auto"><table><thead><tr><th>Category</th><th>Transactions</th><th>Sales</th><th>Cost</th><th>Profit</th></tr></thead><tbody>${Object.entries(c).map(([k,v])=>`<tr><td>${k}</td><td>${v.count}</td><td>${money(v.sale)}</td><td>${money(v.cost)}</td><td class="good">${money(v.sale-v.cost)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No sales for this month.</div>'}
+function renderRep(){fillProductSelect('repProduct');repTypeChanged();let a=state.sales.filter(s=>s.date===today());document.getElementById('repRecent').innerHTML=salesTable(a.slice(0,10),false)}
+function renderAll(){if(role==='admin'){renderDash();renderSales();renderProducts();renderExpenses();renderReport()}else renderRep()}
+document.getElementById('month').value=today().slice(0,7);
+repTypeChanged();
+document.getElementById('userLabel').textContent='Representative — direct access';
+renderAll();
+</script>
+</body>
+</html>
