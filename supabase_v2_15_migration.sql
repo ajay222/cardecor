@@ -37,3 +37,9 @@ FOR UPDATE
 TO authenticated
 USING (true)
 WITH CHECK (true);
+
+
+-- V2.21: Add Bike Washing standard service in TEST
+INSERT INTO public.service_prices (service_name, selling_price, cost_price, active)
+VALUES ('Bike Washing', 600, 0, true)
+ON CONFLICT (service_name) DO NOTHING;

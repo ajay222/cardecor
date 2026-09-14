@@ -50,7 +50,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <div id="login" class="hidden"></div>
 
 <div id="app">
-<header class="top"><div class="topin"><div class="brand">🚘 Satish Reddy Car Decor<small id="userLabel"></small></div><button onclick="logout()">Logout</button></div></header>
+<header id="topbar" class="top"><div class="topin"><div class="brand">🚘 Satish Reddy Car Decor<small id="userLabel"></small></div><button onclick="logout()">Logout</button></div></header>
 <div class="wrap">
 <div id="adminUI" class="hidden">
 <nav class="tabs">
@@ -67,13 +67,15 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <div class="card stat"><div class="lbl">Today's Revenue</div><div class="val" id="todayRevenue">₹0</div><div class="sub" id="todayTx">0 transactions</div></div>
 <div class="card stat"><div class="lbl">Today's Expenses</div><div class="val" id="todayExpense">₹0</div><div class="sub">Shop + other expenses</div></div>
 <div class="card stat"><div class="lbl">Today's Profit</div><div class="val good" id="todayProfit">₹0</div><div class="sub">Revenue − cost − expenses</div></div>
-<div class="card stat"><div class="lbl">Cars Serviced</div><div class="val" id="todayCars">0</div><div class="sub">Today's sales entries</div></div>
+<div class="card stat"><div class="lbl">Cars Serviced</div><div class="val" id="todayCars">0</div><div class="sub">Today's car sales</div></div>
+<div class="card stat"><div class="lbl">Bikes Serviced</div><div class="val" id="todayBikes">0</div><div class="sub">Today's bike sales</div></div>
 </div>
 <div class="three">
 <div class="card"><h2>Today's Category Sales</h2><div id="catToday"></div></div>
 <div class="card"><h2>Today's Payment Collection</h2><div id="paymentToday"></div></div>
 <div class="card"><h2>Quick Actions</h2><div class="quick">
 <button onclick="tab('sales');quick('Car Washing')">🚿 Washing<br><b id="dashWashPrice">₹0</b></button>
+<button onclick="tab('sales');quick('Bike Washing')">🏍️ Bike Washing<br><b id="dashBikeWashPrice">₹0</b></button>
 <button onclick="tab('sales');quick('Alignment & Balancing')">🛞 Alignment<br><b id="dashAlignPrice">₹0</b></button>
 <button onclick="tab('sales');quick('Décor Item')">✨ Décor Sale</button>
 <button onclick="tab('expenses')">💸 Add Expense</button>
@@ -86,13 +88,13 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <div class="two">
 <div class="card"><h2>Record Sale</h2>
 <div class="form">
-<div><label>Category</label><select id="saleType" onchange="saleTypeChanged()"><option>Car Washing</option><option>Alignment & Balancing</option><option>Décor Item</option><option>Other</option></select></div>
-<div><label>Last 4 digits of car number</label><input id="saleCar" maxlength="4" inputmode="numeric" placeholder="4582"></div>
-<div id="saleProductWrap" class="full hidden"><label>Décor Item</label><select id="saleProduct" onchange="productChanged()"></select></div>
+<div><label>Category</label><select id="saleType" onchange="saleTypeChanged()"><option>Car Washing</option><option>Bike Washing</option><option>Alignment & Balancing</option><option>Décor Item</option><option>Other</option></select></div>
+<div><label id="saleVehicleLabel">Car Name</label><input id="saleCar" placeholder="e.g. Hyundai Creta"></div>
+<div id="saleDecorWrap" class="full hidden"><label>Décor Item Description</label><input id="saleDecorDesc" placeholder="Enter décor item description"></div>
 <div id="saleOtherWrap" class="full hidden"><label>Description</label><input id="saleOtherDesc" placeholder="Enter description"></div>
-<div><label>Amount / Selling Price (₹)</label><input id="salePrice" type="number" readonly></div>
-<div><label>Cost (₹)</label><input id="saleCost" type="number" readonly></div>
-<div><label>Discount (%)</label><input id="saleDiscount" type="number" min="0" max="100" step="0.01" value="0" oninput="updateSaleFinal()"></div>
+<div><label>Amount / Selling Price (₹)</label><input id="salePrice" type="number" min="0" step="1" oninput="updateSaleFinal()"></div>
+<div><label>Cost (₹)</label><input id="saleCost" type="number" min="0" step="1"></div>
+<div><label>Discount (₹)</label><input id="saleDiscount" type="number" min="0" step="0.01" value="0" oninput="updateSaleFinal()"></div>
 <div><label>Final Amount (₹)</label><input id="saleFinal" type="number" readonly></div>
 <div class="full"><label>Mode of Payment</label><select id="salePayment" onchange="paymentModeChanged('sale')"><option>Cash</option><option>UPI</option><option>Card</option><option>Cash and Online</option></select></div>
 <div id="saleSplitPayment" class="full hidden">
@@ -101,14 +103,14 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <div><label>UPI Amount (₹)</label><input id="saleUPIAmount" type="number" min="0" step="1" value="0" oninput="updateSplitTotal('sale')"></div>
 <div class="full"><div id="saleSplitTotal" class="card" style="background:#f8fafc"><b>Total Payment: ₹0</b></div></div>
 </div>
-</div></div>
+</div>
 </div>
 <button class="primary" onclick="addSale()">Submit Sale</button>
-<p class="note">No representative login is required. Open the Representative page directly and submit each sale. Product prices are controlled by Admin.</p>
+<p class="note">No representative login is required. Open the Representative page directly and submit each sale.</p>
 </div>
-<div class="card"><h2>Standard Services</h2><div id="standardServices"></div><hr style="border:0;border-top:1px solid var(--line)"><p class="note">For décor products, choose the product from the Admin catalogue. For Other, enter a description and amount manually.</p></div>
+
+<div class="card"><h2>All Sales</h2><div id="salesTable"></div></div>
 </div>
-<div class="card" style="margin-top:14px"><h2>All Sales</h2><div id="salesTable"></div></div>
 </section>
 
 <section id="products" class="hidden">
@@ -118,7 +120,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <div><label>Selling Price (₹)</label><input id="pSell" type="number" min="0"></div>
 <div><label>Cost Price (₹)</label><input id="pCost" type="number" min="0"></div>
 </div><button class="primary" onclick="addProduct()">Add Product</button></div>
-<div class="card"><h2>Suggested Categories</h2><p class="note">Mats • Glass Film • Seat Covers • Door Visors • Steering Covers • LED Lights • Car Perfumes • Car Covers • Accessories • Other Décor</p></div>
+
 </div>
 <div class="card" style="margin-top:14px"><h2>Product Catalogue</h2><div id="productTable"></div></div>
 </section>
@@ -130,9 +132,9 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <div><label>Amount (₹)</label><input id="expAmount" type="number" min="0"></div>
 <div class="full"><label>Description</label><input id="expDesc" placeholder="Electricity, cleaning supplies, etc."></div>
 </div><button class="primary" onclick="addExpense()">Save Expense</button><p class="note">Use this for business expenses. Product cost is already captured against each sale, so avoid entering the same product purchase twice.</p></div>
-<div class="card"><h2>Expense Summary</h2><div id="expenseSummary"></div></div>
 </div>
 <div class="card" style="margin-top:14px"><h2>Expense History</h2><div id="expenseTable"></div></div>
+</section>
 
 <section id="services" class="hidden">
 <div class="two">
@@ -140,6 +142,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <div class="form">
 <div><label>Service</label><select id="svcName">
 <option>Car Washing</option>
+<option>Bike Washing</option>
 <option>Alignment & Balancing</option>
 </select></div>
 <div><label>Selling Price (₹)</label><input id="svcSell" type="number" min="0" step="1"></div>
@@ -148,7 +151,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <button class="primary" onclick="saveService()">Save Service Price</button>
 <p class="note">Changes are saved to Supabase and automatically used by the Representative page.</p>
 </div>
-<div class="card"><h2>Current Service Prices</h2><div id="serviceTable"></div></div>
+
 </div>
 </section>
 
@@ -169,14 +172,16 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <div class="title"><h2>Representative — New Sale</h2><span class="badge">Direct Access</span></div>
 <div class="card" style="max-width:620px">
 <div class="form">
-<div class="full"><label>Category</label><select id="repType" onchange="repTypeChanged()"><option>Car Washing</option><option>Alignment & Balancing</option><option>Décor Item</option><option>Other</option></select></div>
-<div class="full"><label>Last 4 digits of car number</label><input id="repCar" maxlength="4" inputmode="numeric" placeholder="Enter last 4 digits"></div>
-<div id="repProductWrap" class="full hidden"><label>Décor Item</label><select id="repProduct" onchange="repAmountChanged()"></select></div>
+<div class="full"><label>Category</label><select id="repType" onchange="repTypeChanged()"><option>Car Washing</option><option>Bike Washing</option><option>Alignment & Balancing</option><option>Décor Item</option><option>Other</option></select></div>
+<div class="full"><label id="repVehicleLabel">Car Name</label><input id="repCar" placeholder="e.g. Hyundai Creta"></div>
+<div id="repServiceAmountWrap" class="full"><label>Service Amount (₹)</label><input id="repServiceAmount" type="number" min="0" step="1" oninput="repAmountChanged()"><div class="note">Default service price is shown. Representative can adjust the amount based on vehicle size/service.</div></div>
+<div id="repDecorWrap" class="full hidden"><label>Décor Item Description</label><input id="repDecorDesc" placeholder="Enter décor item description"></div>
+<div id="repDecorAmountWrap" class="full hidden"><label>Amount (₹)</label><input id="repDecorAmount" type="number" min="0" step="1" oninput="repAmountChanged()"></div>
 <div id="repOtherWrap" class="full hidden"><label>Description</label><input id="repOtherDesc" placeholder="Enter description"></div>
 <div id="repOtherAmountWrap" class="hidden"><label>Amount (₹)</label><input id="repOtherAmount" type="number" min="0" step="1" oninput="repAmountChanged()"></div>
 <div>
-<label>Discount (%)</label>
-<input id="repDiscount" type="number" min="0" max="100" step="0.01" value="0" oninput="repAmountChanged()">
+<label>Discount (₹)</label>
+<input id="repDiscount" type="number" min="0" step="0.01" value="0" oninput="repAmountChanged()">
 </div>
 <div>
 <label>Mode of Payment</label>
@@ -216,6 +221,7 @@ const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const DB='carDecorV2Supabase';
 let state={products:[],sales:[],expenses:[],services:[
  {name:'Car Washing',sell:600,cost:0},
+ {name:'Bike Washing',sell:0,cost:0},
  {name:'Alignment & Balancing',sell:600,cost:0}
 ]};
 let role='rep';
@@ -224,13 +230,23 @@ let loading=false;
 
 const today=()=>new Date().toISOString().slice(0,10);
 const money=n=>'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
-function clampDiscount(v){v=Number(v||0);return Math.max(0,Math.min(100,v));}
-function discountedAmount(price,discount){return Math.round(Number(price||0)*(1-clampDiscount(discount)/100)*100)/100;}
+function clampDiscount(v,price){v=Number(v||0);price=Number(price||0);return Math.max(0,Math.min(price,v));}
+function discountedAmount(price,discount){price=Number(price||0);discount=clampDiscount(discount,price);return Math.round(Math.max(0,price-discount)*100)/100;}
 
 function mapProduct(p){return {id:p.id,name:p.name,sell:Number(p.selling_price||0),cost:Number(p.cost_price||0),active:p.active!==false};}
 function mapService(s){return {id:s.id,name:s.service_name,sell:Number(s.selling_price||0),cost:Number(s.cost_price||0),active:s.active!==false};}
 function serviceByName(name){return state.services.find(s=>s.name===name)||{name,sell:0,cost:0};}
-function mapSale(s){return {id:s.id,date:s.sale_date,time:new Date(s.sale_time||s.created_at||Date.now()).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),car:s.car_last4,type:s.category,item:s.item_name||s.description||s.category,price:Number(s.selling_price||0),cost:Number(s.cost_amount||0),discount:Number(s.discount_percent||0),finalPrice:Number(s.final_amount||0),payment:s.payment_method,cashAmount:Number(s.cash_amount||0),upiAmount:Number(s.upi_amount||0),cardAmount:Number(s.card_amount||0),description:s.description||''};}
+function formatSaleTime(value){
+ if(!value)return '';
+ if(/^\d{2}:\d{2}/.test(String(value))){
+  let m=String(value).match(/^(\d{2}):(\d{2})/),h=Number(m[1]),min=m[2],ampm=h>=12?'PM':'AM';
+  h=h%12||12;
+  return String(h).padStart(2,'0')+':'+min+' '+ampm;
+ }
+ const d=new Date(value);
+ return isNaN(d.getTime())?'':d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+function mapSale(s){return {id:s.id,date:s.sale_date,time:formatSaleTime(s.sale_time||s.created_at),car:s.car_last4,type:s.category,item:s.item_name||s.description||s.category,price:Number(s.selling_price||0),cost:Number(s.cost_amount||0),discount:Number(s.discount_amount!=null?s.discount_amount:(Number(s.selling_price||0)*Number(s.discount_percent||0)/100)||0),finalPrice:Number(s.final_amount||0),payment:s.payment_method,cashAmount:Number(s.cash_amount||0),upiAmount:Number(s.upi_amount||0),cardAmount:Number(s.card_amount||0),description:s.description||''};}
 function mapExpense(e){return {id:e.id,date:e.expense_date,time:new Date(e.created_at||Date.now()).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),type:e.expense_type,amount:Number(e.amount||0),desc:e.description||''};}
 
 async function loadProducts(){
@@ -272,37 +288,84 @@ async function loginAdminInline(){
  document.getElementById('userLabel').textContent='Admin';
  document.getElementById('adminUI').classList.remove('hidden');
  document.getElementById('repUI').classList.add('hidden');
+ document.getElementById('topbar').classList.remove('hidden');
  await loadAdminData();
  renderAll();
 }
 async function logout(){
- await sb.auth.signOut();
+ const {error}=await sb.auth.signOut();
+ if(error){alert('Logout failed: '+error.message);return;}
+ // Reset the UI immediately, then reload so the app starts cleanly in Representative mode.
  role='rep';
  document.getElementById('userLabel').textContent='Representative — direct access';
  document.getElementById('adminUI').classList.add('hidden');
  document.getElementById('repUI').classList.remove('hidden');
+ document.getElementById('topbar').classList.add('hidden');
+ document.querySelectorAll('#adminUI section').forEach(s=>s.classList.add('hidden'));
+ document.getElementById('dash').classList.remove('hidden');
+ document.querySelectorAll('.tabs button').forEach((b,i)=>b.classList.toggle('active',i===0));
  await loadProducts();
  renderAll();
+ window.scrollTo({top:0,behavior:'instant'});
+ window.location.reload();
 }
-function tab(id,btn){document.querySelectorAll('#adminUI section').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');if(id==='services')serviceEditorChanged();if(btn){document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}renderAll();}
+function tab(id,btn){
+  document.querySelectorAll('#adminUI section').forEach(s=>s.classList.add('hidden'));
+  const target=document.getElementById(id);
+  if(target) target.classList.remove('hidden');
+  if(id==='services') serviceEditorChanged();
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+  const activeBtn=btn||Array.from(document.querySelectorAll('.tabs button')).find(b=>b.getAttribute('onclick')?.includes("tab('"+id+"'"));
+  if(activeBtn) activeBtn.classList.add('active');
+  renderAll();
+}
 function quick(t){document.getElementById('saleType').value=t;saleTypeChanged();document.getElementById('saleCar').focus();}
 
 function fillProductSelect(id){
  const s=document.getElementById(id); if(!s)return;
  s.innerHTML=state.products.filter(p=>p.active!==false).map(p=>`<option value="${p.id}">${p.name} — ${money(p.sell)}</option>`).join('');
 }
-function productChanged(){
- const p=state.products.find(x=>x.id==document.getElementById('saleProduct').value);
- document.getElementById('salePrice').readOnly=true;document.getElementById('saleCost').readOnly=true;
- document.getElementById('salePrice').value=p?.sell||0;document.getElementById('saleCost').value=p?.cost||0;updateSaleFinal();
+function productChanged(){ updateSaleFinal(); }
+function updateSaleFinal(){
+ let price=Number(document.getElementById('salePrice').value||0),
+     discount=clampDiscount(document.getElementById('saleDiscount').value,price);
+ document.getElementById('saleDiscount').value=discount;
+ document.getElementById('saleFinal').value=discountedAmount(price,discount);
 }
-function updateSaleFinal(){let price=Number(document.getElementById('salePrice').value||0),discount=clampDiscount(document.getElementById('saleDiscount').value);document.getElementById('saleDiscount').value=discount;document.getElementById('saleFinal').value=discountedAmount(price,discount);}
+function updateVehicleLabel(which,type){
+ const label=document.getElementById(which==='rep'?'repVehicleLabel':'saleVehicleLabel');
+ const input=document.getElementById(which==='rep'?'repCar':'saleCar');
+ const bike=type==='Bike Washing';
+ if(label)label.textContent=bike?'Bike Name':'Car Name';
+ if(input)input.placeholder=bike?'e.g. Royal Enfield Classic 350':'e.g. Hyundai Creta';
+}
 function saleTypeChanged(){
- let t=document.getElementById('saleType').value,deco=t==='Décor Item',other=t==='Other';
- document.getElementById('saleProductWrap').classList.toggle('hidden',!deco);document.getElementById('saleOtherWrap').classList.toggle('hidden',!other);
- if(deco){fillProductSelect('saleProduct');productChanged();}
- else if(other){document.getElementById('salePrice').readOnly=false;document.getElementById('saleCost').readOnly=false;document.getElementById('salePrice').value='';document.getElementById('saleCost').value=0;updateSaleFinal();}
- else{let svc=serviceByName(t);document.getElementById('salePrice').readOnly=true;document.getElementById('saleCost').readOnly=true;document.getElementById('salePrice').value=svc.sell;document.getElementById('saleCost').value=svc.cost;updateSaleFinal();}
+ let t=document.getElementById('saleType').value,
+     deco=t==='Décor Item',
+     other=t==='Other',
+     standard=!deco&&!other;
+ updateVehicleLabel('sale',t);
+ document.getElementById('saleDecorWrap').classList.toggle('hidden',!deco);
+ document.getElementById('saleOtherWrap').classList.toggle('hidden',!other);
+ if(deco){
+   document.getElementById('saleDecorDesc').value='';
+   document.getElementById('salePrice').value='';
+   document.getElementById('saleCost').value=0;
+   document.getElementById('saleDiscount').value=0;
+   updateSaleFinal();
+ }else if(other){
+   document.getElementById('saleOtherDesc').value='';
+   document.getElementById('salePrice').value='';
+   document.getElementById('saleCost').value=0;
+   document.getElementById('saleDiscount').value=0;
+   updateSaleFinal();
+ }else if(standard){
+   let svc=serviceByName(t);
+   document.getElementById('salePrice').value=svc.sell;
+   document.getElementById('saleCost').value=svc.cost;
+   document.getElementById('saleDiscount').value=0;
+   updateSaleFinal();
+ }
 }
 
 function paymentModeChanged(which){
@@ -321,22 +384,26 @@ function getPaymentSplit(which,finalPrice){
 }
 
 async function addSaleData(type,car,pid=null,discount=0,payment='Cash',customDesc='',customPrice=0,customCost=0,cashAmount=0,upiAmount=0,cardAmount=0){
- if(!/^\d{4}$/.test(car)){alert('Enter exactly 4 digits of the car number.');return false;}
+ if(!car.trim()){alert('Enter the car name.');return false;}
  let svc=serviceByName(type),price=svc.sell,cost=svc.cost,item=type,description=null,productId=null;
  if(type==='Décor Item'){
-  let p=state.products.find(x=>x.id==pid&&x.active!==false);if(!p){alert('Select a décor product.');return false;}
-  price=p.sell;cost=p.cost;item=p.name;productId=p.id;
+  if(!customDesc.trim()){alert('Enter a décor item description.');return false;}
+  if(Number(customPrice)<=0){alert('Enter an amount for Décor Item.');return false;}
+  price=Number(customPrice);cost=0;item=customDesc.trim();description=customDesc.trim();productId=null;
  }else if(type==='Other'){
   if(!customDesc.trim()){alert('Enter a description for Other.');return false;}
   if(Number(customPrice)<=0){alert('Enter an amount for Other.');return false;}
   price=Number(customPrice);cost=Number(customCost||0);item=customDesc.trim();description=customDesc.trim();
+ }else if(Number(customPrice)>0){
+  price=Number(customPrice);
+  cost=Number(customCost||0);
  }
- discount=clampDiscount(discount);let finalPrice=discountedAmount(price,discount);
+ discount=clampDiscount(discount,price);let finalPrice=discountedAmount(price,discount);
  cashAmount=Number(cashAmount||0);upiAmount=Number(upiAmount||0);cardAmount=Number(cardAmount||0);
  if(payment==='Cash and Online'){
   let splitTotal=Math.round((cashAmount+upiAmount)*100)/100;if(Math.abs(splitTotal-finalPrice)>0.01){alert('Cash + UPI total must equal the Final Amount of '+money(finalPrice)+'.');return false;}
  }else{cashAmount=payment==='Cash'?finalPrice:0;upiAmount=payment==='UPI'?finalPrice:0;cardAmount=payment==='Card'?finalPrice:0;}
- const payload={car_last4:car,category:type,product_id:productId,item_name:item,description,selling_price:price,discount_percent:discount,final_amount:finalPrice,payment_method:payment,cash_amount:cashAmount,upi_amount:upiAmount,card_amount:cardAmount,cost_amount:cost};
+ const payload={car_last4:car,category:type,product_id:productId,item_name:item,description,selling_price:price,discount_amount:discount,final_amount:finalPrice,payment_method:payment,cash_amount:cashAmount,upi_amount:upiAmount,card_amount:cardAmount,cost_amount:cost};
  const {error}=await sb.from('sales').insert(payload);
 if(error){console.error(error);alert('Sale could not be saved: '+error.message);return false;}
 const mapped=mapSale({...payload,id:null,sale_date:today(),sale_time:new Date().toISOString()});
@@ -347,27 +414,56 @@ renderAll();return true;
 }
 
 async function addSale(){
- let t=document.getElementById('saleType').value,car=document.getElementById('saleCar').value.trim(),pid=document.getElementById('saleProduct').value,discount=clampDiscount(document.getElementById('saleDiscount').value),payment=document.getElementById('salePayment').value,desc=t==='Other'?document.getElementById('saleOtherDesc').value:'',customPrice=t==='Other'?Number(document.getElementById('salePrice').value||0):0,customCost=t==='Other'?Number(document.getElementById('saleCost').value||0):0;
- let basePrice=Number(document.getElementById('salePrice').value||0),finalPrice=discountedAmount(basePrice,discount),split=getPaymentSplit('sale',finalPrice);
+ let t=document.getElementById('saleType').value,
+     car=document.getElementById('saleCar').value.trim(),
+     pid=null,
+     basePrice=Number(document.getElementById('salePrice').value||0),
+     customCost=Number(document.getElementById('saleCost').value||0),
+     discount=clampDiscount(document.getElementById('saleDiscount').value,basePrice),
+     payment=document.getElementById('salePayment').value,
+     desc=t==='Other'?document.getElementById('saleOtherDesc').value:
+          t==='Décor Item'?document.getElementById('saleDecorDesc').value:'',
+     customPrice=basePrice;
+ if(basePrice<=0){alert('Enter a valid selling amount.');return;}
+ if((t==='Other'||t==='Décor Item')&&!desc.trim()){alert('Enter a description.');return;}
+ let finalPrice=discountedAmount(basePrice,discount),split=getPaymentSplit('sale',finalPrice);
  if(await addSaleData(t,car,pid,discount,payment,desc,customPrice,customCost,split.cash,split.upi,split.card)){
-  alert('Sale submitted. Final amount: '+money(finalPrice));document.getElementById('saleCar').value='';document.getElementById('saleDiscount').value=0;document.getElementById('saleOtherDesc').value='';document.getElementById('saleCashAmount').value=0;document.getElementById('saleUPIAmount').value=0;updateSaleFinal();updateSplitTotal('sale');
+  alert('Sale submitted. Final amount: '+money(finalPrice));
+  document.getElementById('saleCar').value='';
+  document.getElementById('saleDiscount').value=0;
+  document.getElementById('saleDecorDesc').value='';
+  document.getElementById('saleOtherDesc').value='';
+  document.getElementById('saleCashAmount').value=0;
+  document.getElementById('saleUPIAmount').value=0;
+  updateSplitTotal('sale');
   if(role==='admin'){await loadAdminData();renderAll();}else{await loadProducts();renderAll();}
  }
 }
 
 function repTypeChanged(){
- let t=document.getElementById('repType').value,deco=t==='Décor Item',other=t==='Other';
- document.getElementById('repProductWrap').classList.toggle('hidden',!deco);document.getElementById('repOtherWrap').classList.toggle('hidden',!other);document.getElementById('repOtherAmountWrap').classList.toggle('hidden',!other);
- if(deco){fillProductSelect('repProduct');repAmountChanged();}else if(other){document.getElementById('repOtherDesc').value='';document.getElementById('repOtherAmount').value='';repAmountChanged();}else{document.getElementById('repDiscount').value=0;repAmountChanged();}
+ let t=document.getElementById('repType').value,deco=t==='Décor Item',other=t==='Other',standard=!deco&&!other;
+ updateVehicleLabel('rep',t);
+ document.getElementById('repServiceAmountWrap').classList.toggle('hidden',!standard);
+ document.getElementById('repDecorWrap').classList.toggle('hidden',!deco);document.getElementById('repDecorAmountWrap').classList.toggle('hidden',!deco);
+ document.getElementById('repOtherWrap').classList.toggle('hidden',!other);document.getElementById('repOtherAmountWrap').classList.toggle('hidden',!other);
+ if(deco){document.getElementById('repDecorDesc').value='';document.getElementById('repDecorAmount').value='';repAmountChanged();}
+ else if(other){document.getElementById('repOtherDesc').value='';document.getElementById('repOtherAmount').value='';repAmountChanged();}
+ else{document.getElementById('repDiscount').value=0;document.getElementById('repServiceAmount').value=serviceByName(t).sell;repAmountChanged();}
 }
 function repAmountChanged(){
- let t=document.getElementById('repType').value,price=serviceByName(t).sell;if(t==='Décor Item'){let p=state.products.find(x=>x.id==document.getElementById('repProduct').value);price=p?.sell||0;}else if(t==='Other')price=Number(document.getElementById('repOtherAmount').value||0);
- let discount=clampDiscount(document.getElementById('repDiscount').value);document.getElementById('repDiscount').value=discount;document.getElementById('repAmount').innerHTML=`<b>Original: ${money(price)} &nbsp; | &nbsp; Discount: ${discount}% &nbsp; | &nbsp; Final Amount: ${money(discountedAmount(price,discount))}</b>`;
+ let t=document.getElementById('repType').value,price=serviceByName(t).sell;
+ if(t==='Décor Item')price=Number(document.getElementById('repDecorAmount').value||0);
+ else if(t==='Other')price=Number(document.getElementById('repOtherAmount').value||0);
+ else price=Number(document.getElementById('repServiceAmount').value||0);
+ let discount=clampDiscount(document.getElementById('repDiscount').value,price);document.getElementById('repDiscount').value=discount;document.getElementById('repAmount').innerHTML=`<b>Amount: ${money(price)} &nbsp; | &nbsp; Discount: ${money(discount)} &nbsp; | &nbsp; Final Amount: ${money(discountedAmount(price,discount))}</b>`;
 }
 async function repSubmit(){
- let t=document.getElementById('repType').value,car=document.getElementById('repCar').value.trim(),pid=document.getElementById('repProduct').value,discount=clampDiscount(document.getElementById('repDiscount').value),payment=document.getElementById('repPayment').value,desc=t==='Other'?document.getElementById('repOtherDesc').value:'',customPrice=t==='Other'?Number(document.getElementById('repOtherAmount').value||0):0;
- if(t==='Other'&&!desc.trim()){alert('Enter a description.');return;}if(t==='Other'&&customPrice<=0){alert('Enter an amount.');return;}
- let basePrice=t==='Décor Item'?(state.products.find(x=>x.id==pid)?.sell||0):t==='Other'?customPrice:serviceByName(t).sell,finalPrice=discountedAmount(basePrice,discount),split=getPaymentSplit('rep',finalPrice);
+ let t=document.getElementById('repType').value,car=document.getElementById('repCar').value.trim(),pid=null,discount=Number(document.getElementById('repDiscount').value||0),payment=document.getElementById('repPayment').value;
+ let desc=t==='Other'?document.getElementById('repOtherDesc').value:t==='Décor Item'?document.getElementById('repDecorDesc').value:'';
+ let customPrice=t==='Other'?Number(document.getElementById('repOtherAmount').value||0):t==='Décor Item'?Number(document.getElementById('repDecorAmount').value||0):Number(document.getElementById('repServiceAmount').value||0);
+ if((t==='Other'||t==='Décor Item')&&!desc.trim()){alert('Enter a description.');return;}
+ if(customPrice<=0){alert('Enter a valid amount.');return;}
+ let basePrice=customPrice,finalPrice=discountedAmount(basePrice,discount),split=getPaymentSplit('rep',finalPrice);
  if(await addSaleData(t,car,pid,discount,payment,desc,customPrice,0,split.cash,split.upi,split.card)){
   alert('Sale submitted successfully. Final amount: '+money(finalPrice));document.getElementById('repCar').value='';document.getElementById('repDiscount').value=0;document.getElementById('repCashAmount').value=0;document.getElementById('repUPIAmount').value=0;updateSplitTotal('rep');if(t==='Other'){document.getElementById('repOtherDesc').value='';document.getElementById('repOtherAmount').value='';}renderRep();
  }
@@ -386,10 +482,7 @@ function serviceEditorChanged(){
  document.getElementById('svcSell').value=s.sell;document.getElementById('svcCost').value=s.cost;
 }
 function renderServices(){
- let rows=state.services.map(s=>`<tr><td><b>${s.name}</b></td><td>${money(s.sell)}</td><td>${money(s.cost)}</td><td class="${s.sell-s.cost>=0?'good':'bad'}">${money(s.sell-s.cost)}</td><td><button class="secondary" onclick="document.getElementById('svcName').value='${s.name.replace(/'/g,"\\'")}';serviceEditorChanged()">Edit</button></td></tr>`).join('');
- document.getElementById('serviceTable').innerHTML=rows?`<div style="overflow:auto"><table><thead><tr><th>Service</th><th>Selling</th><th>Cost</th><th>Profit / Sale</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:'<div class="empty">No standard services.</div>';
- document.getElementById('standardServices').innerHTML=state.services.map(s=>`<p>${s.name==='Car Washing'?'🚿':'🛞'} <b>${s.name}</b><br>${money(s.sell)}</p>`).join('');
- serviceEditorChanged();
+  serviceEditorChanged();
 }
 
 async function addProduct(){let name=document.getElementById('pName').value.trim(),sell=Number(document.getElementById('pSell').value),cost=Number(document.getElementById('pCost').value);if(!name||sell<=0||cost<0){alert('Enter product name, selling price and cost.');return;}const {error}=await sb.from('products').insert({name,category:'Décor Item',selling_price:sell,cost_price:cost,active:true});if(error){alert('Product could not be added: '+error.message);return;}document.getElementById('pName').value='';document.getElementById('pSell').value='';document.getElementById('pCost').value='';await loadAdminData();renderAll();alert('Product added.');}
@@ -397,24 +490,24 @@ async function deleteProduct(id){if(confirm('Hide this product from the catalogu
 async function addExpense(){let type=document.getElementById('expType').value,amount=Number(document.getElementById('expAmount').value),desc=document.getElementById('expDesc').value.trim();if(amount<=0){alert('Enter an expense amount.');return;}const {error}=await sb.from('expenses').insert({expense_date:today(),expense_type:type,amount,description:desc||null});if(error){alert('Expense could not be saved: '+error.message);return;}document.getElementById('expAmount').value='';document.getElementById('expDesc').value='';await loadAdminData();renderAll();alert('Expense saved.');}
 async function deleteExpense(id){if(confirm('Delete this expense?')){const {error}=await sb.from('expenses').delete().eq('id',id);if(error){alert('Expense could not be deleted: '+error.message);return;}await loadAdminData();renderAll();}}
 
-function salesTable(arr,full=true){if(!arr.length)return '<div class="empty">No sales found.</div>';return `<div style="overflow:auto"><table><thead><tr><th>Date</th><th>Time</th><th>Car</th><th>Category</th><th>Item</th><th>Sale</th><th>Discount</th><th>Final</th><th>Payment</th><th>Cost</th>${full?'<th>Profit</th>':''}</tr></thead><tbody>${arr.map(s=>`<tr><td>${s.date}</td><td>${s.time}</td><td><b>${s.car}</b></td><td><span class="pill">${s.type}</span></td><td>${s.item}</td><td>${money(s.price)}</td><td>${Number(s.discount||0)}%</td><td>${money(s.finalPrice??s.price)}</td><td><span class="pill">${s.payment||'Cash'}</span>${s.payment==='Cash and Online'?`<br><small>Cash ${money(s.cashAmount)} + UPI ${money(s.upiAmount)}</small>`:''}</td><td>${money(s.cost)}</td>${full?`<td class="${(s.finalPrice??s.price)-s.cost>=0?'good':'bad'}">${money((s.finalPrice??s.price)-s.cost)}</td>`:''}</tr>`).join('')}</tbody></table></div>`}
+function salesTable(arr,full=true){if(!arr.length)return '<div class="empty">No sales found.</div>';return `<div style="overflow:auto"><table><thead><tr><th>Date</th><th>Time</th><th>Vehicle</th><th>Category</th><th>Item</th><th>Sale</th><th>Discount</th><th>Final</th><th>Payment</th><th>Cost</th>${full?'<th>Profit</th>':''}</tr></thead><tbody>${arr.map(s=>`<tr><td>${s.date}</td><td>${s.time}</td><td><b>${s.car}</b><br><small>${s.type==='Bike Washing'?'Bike Name':'Car Name'}</small></td><td><span class="pill">${s.type}</span></td><td>${s.item}</td><td>${money(s.price)}</td><td>${money(s.discount||0)}</td><td>${money(s.finalPrice??s.price)}</td><td><span class="pill">${s.payment||'Cash'}</span>${s.payment==='Cash and Online'?`<br><small>Cash ${money(s.cashAmount)} + UPI ${money(s.upiAmount)}</small>`:''}</td><td>${money(s.cost)}</td>${full?`<td class="${(s.finalPrice??s.price)-s.cost>=0?'good':'bad'}">${money((s.finalPrice??s.price)-s.cost)}</td>`:''}</tr>`).join('')}</tbody></table></div>`}
 function expenseTable(arr){if(!arr.length)return '<div class="empty">No expenses found.</div>';return `<div style="overflow:auto"><table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th></tr></thead><tbody>${arr.map(e=>`<tr><td>${e.date} ${e.time}</td><td>${e.type}</td><td>${e.desc||'-'}</td><td>${money(e.amount)}</td></tr>`).join('')}</tbody></table></div>`}
-function renderDash(){let a=state.sales.filter(s=>s.date===today()),e=state.expenses.filter(x=>x.date===today()),rev=a.reduce((n,s)=>n+(s.finalPrice??s.price),0),cost=a.reduce((n,s)=>n+s.cost,0),ex=e.reduce((n,x)=>n+x.amount,0);let wash=serviceByName('Car Washing'),align=serviceByName('Alignment & Balancing');document.getElementById('dashWashPrice').textContent=money(wash.sell);document.getElementById('dashAlignPrice').textContent=money(align.sell);document.getElementById('today').textContent=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});document.getElementById('todayRevenue').textContent=money(rev);document.getElementById('todayExpense').textContent=money(ex);document.getElementById('todayProfit').textContent=money(rev-cost-ex);document.getElementById('todayTx').textContent=a.length+' transaction'+(a.length===1?'':'s');document.getElementById('todayCars').textContent=a.length;let c={};a.forEach(s=>c[s.type]=(c[s.type]||0)+(s.finalPrice??s.price));document.getElementById('catToday').innerHTML=Object.keys(c).length?Object.entries(c).map(([k,v])=>`<p style="display:flex;justify-content:space-between"><span>${k}</span><b>${money(v)}</b></p>`).join(''):'<div class="empty">No sales today.</div>';let payCash=0,payUPI=0,payCard=0;a.forEach(s=>{if(s.payment==='Cash')payCash+=(s.finalPrice??s.price);else if(s.payment==='UPI')payUPI+=(s.finalPrice??s.price);else if(s.payment==='Card')payCard+=(s.finalPrice??s.price);else if(s.payment==='Cash and Online'){payCash+=Number(s.cashAmount||0);payUPI+=Number(s.upiAmount||0);}});document.getElementById('paymentToday').innerHTML=`<p style="display:flex;justify-content:space-between"><span>Cash</span><b>${money(payCash)}</b></p><p style="display:flex;justify-content:space-between"><span>UPI</span><b>${money(payUPI)}</b></p><p style="display:flex;justify-content:space-between"><span>Card</span><b>${money(payCard)}</b></p>`;document.getElementById('recentSales').innerHTML=salesTable(a.slice(0,8),false)}
+function renderDash(){let a=state.sales.filter(s=>s.date===today()),e=state.expenses.filter(x=>x.date===today()),rev=a.reduce((n,s)=>n+(s.finalPrice??s.price),0),cost=a.reduce((n,s)=>n+s.cost,0),ex=e.reduce((n,x)=>n+x.amount,0);let wash=serviceByName('Car Washing'),bike=serviceByName('Bike Washing'),align=serviceByName('Alignment & Balancing');document.getElementById('dashWashPrice').textContent=money(wash.sell);document.getElementById('dashBikeWashPrice').textContent=money(bike.sell);document.getElementById('dashAlignPrice').textContent=money(align.sell);document.getElementById('today').textContent=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});document.getElementById('todayRevenue').textContent=money(rev);document.getElementById('todayExpense').textContent=money(ex);document.getElementById('todayProfit').textContent=money(rev-cost-ex);document.getElementById('todayTx').textContent=a.length+' transaction'+(a.length===1?'':'s');document.getElementById('todayCars').textContent=a.filter(s=>s.type!=='Bike Washing').length;document.getElementById('todayBikes').textContent=a.filter(s=>s.type==='Bike Washing').length;let c={};a.forEach(s=>c[s.type]=(c[s.type]||0)+(s.finalPrice??s.price));document.getElementById('catToday').innerHTML=Object.keys(c).length?Object.entries(c).map(([k,v])=>`<p style="display:flex;justify-content:space-between"><span>${k}</span><b>${money(v)}</b></p>`).join(''):'<div class="empty">No sales today.</div>';let payCash=0,payUPI=0,payCard=0;a.forEach(s=>{if(s.payment==='Cash')payCash+=(s.finalPrice??s.price);else if(s.payment==='UPI')payUPI+=(s.finalPrice??s.price);else if(s.payment==='Card')payCard+=(s.finalPrice??s.price);else if(s.payment==='Cash and Online'){payCash+=Number(s.cashAmount||0);payUPI+=Number(s.upiAmount||0);}});document.getElementById('paymentToday').innerHTML=`<p style="display:flex;justify-content:space-between"><span>Cash</span><b>${money(payCash)}</b></p><p style="display:flex;justify-content:space-between"><span>UPI</span><b>${money(payUPI)}</b></p><p style="display:flex;justify-content:space-between"><span>Card</span><b>${money(payCard)}</b></p>`;document.getElementById('recentSales').innerHTML=salesTable(a.slice(0,8),false)}
 function renderSales(){fillProductSelect('saleProduct');saleTypeChanged();document.getElementById('salesTable').innerHTML=salesTable(state.sales)}
 function renderProducts(){document.getElementById('productTable').innerHTML=state.products.length?`<div style="overflow:auto"><table><thead><tr><th>Product</th><th>Selling</th><th>Cost</th><th>Profit / Sale</th><th>Status</th><th></th></tr></thead><tbody>${state.products.map(p=>`<tr><td><b>${p.name}</b></td><td>${money(p.sell)}</td><td>${money(p.cost)}</td><td class="good">${money(p.sell-p.cost)}</td><td>${p.active?'Active':'Hidden'}</td><td>${p.active?`<button class="secondary" onclick="deleteProduct(${p.id})">Hide</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No products.</div>'}
-function renderExpenses(){let t=state.expenses.filter(e=>e.date===today()).reduce((n,e)=>n+e.amount,0);document.getElementById('expenseSummary').innerHTML=`<h3>Today's Expenses</h3><div style="font-size:28px;font-weight:850">${money(t)}</div><p class="note">All recorded expenses: ${money(state.expenses.reduce((n,e)=>n+e.amount,0))}</p>`;document.getElementById('expenseTable').innerHTML=expenseTable(state.expenses)}
+function renderExpenses(){const table=document.getElementById('expenseTable');if(table)table.innerHTML=expenseTable(state.expenses)}
 function renderReport(){let m=document.getElementById('month').value||today().slice(0,7),a=state.sales.filter(s=>s.date.startsWith(m)),e=state.expenses.filter(x=>x.date.startsWith(m)),rev=a.reduce((n,s)=>n+(s.finalPrice??s.price),0),cost=a.reduce((n,s)=>n+s.cost,0),ex=e.reduce((n,x)=>n+x.amount,0);document.getElementById('mRevenue').textContent=money(rev);document.getElementById('mCost').textContent=money(cost);document.getElementById('mExpense').textContent=money(ex);document.getElementById('mProfit').textContent=money(rev-cost-ex);let c={};a.forEach(s=>{c[s.type]??={sale:0,cost:0,count:0};c[s.type].sale+=(s.finalPrice??s.price);c[s.type].cost+=s.cost;c[s.type].count++});let pay={Cash:0,UPI:0,Card:0};a.forEach(s=>{if(s.payment==='Cash')pay.Cash+=(s.finalPrice??s.price);else if(s.payment==='UPI')pay.UPI+=(s.finalPrice??s.price);else if(s.payment==='Card')pay.Card+=(s.finalPrice??s.price);else if(s.payment==='Cash and Online'){pay.Cash+=Number(s.cashAmount||0);pay.UPI+=Number(s.upiAmount||0);}});document.getElementById('reportBreakdown').innerHTML=`<div class="three" style="margin-bottom:15px"><div class="metric">Cash Collection<b>${money(pay.Cash)}</b></div><div class="metric">UPI Collection<b>${money(pay.UPI)}</b></div><div class="metric">Card Collection<b>${money(pay.Card)}</b></div><div class="metric">Total Collection<b>${money(rev)}</b></div></div>`+(Object.keys(c).length?`<h3>Category Breakdown</h3><div style="overflow:auto"><table><thead><tr><th>Category</th><th>Transactions</th><th>Sales</th><th>Cost</th><th>Profit</th></tr></thead><tbody>${Object.entries(c).map(([k,v])=>`<tr><td>${k}</td><td>${v.count}</td><td>${money(v.sale)}</td><td>${money(v.cost)}</td><td class="good">${money(v.sale-v.cost)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No sales for this month.</div>')}
-function renderRep(){fillProductSelect('repProduct');repTypeChanged();let a=sessionSales.filter(s=>s.date===today());document.getElementById('repRecent').innerHTML=salesTable(a.slice(0,10),false)}
+function renderRep(){repTypeChanged();let a=sessionSales.filter(s=>s.date===today());document.getElementById('repRecent').innerHTML=salesTable(a.slice(0,10),false)}
 function renderAll(){if(role==='admin'){renderDash();renderSales();renderProducts();renderServices();renderExpenses();renderReport()}else renderRep()}
 
 async function initApp(){
  document.getElementById('month').value=today().slice(0,7);
  document.getElementById('userLabel').textContent='Representative — direct access';
- document.getElementById('adminUI').classList.add('hidden');document.getElementById('repUI').classList.remove('hidden');
+ document.getElementById('adminUI').classList.add('hidden');document.getElementById('repUI').classList.remove('hidden');document.getElementById('topbar').classList.add('hidden');
  await loadProducts();repTypeChanged();saleTypeChanged();paymentModeChanged('rep');paymentModeChanged('sale');renderAll();
  const {data}=await sb.auth.getSession();
- if(data.session){role='admin';document.getElementById('userLabel').textContent='Admin';document.getElementById('adminUI').classList.remove('hidden');document.getElementById('repUI').classList.add('hidden');await loadAdminData();renderAll();}
- sb.auth.onAuthStateChange(async (_event,session)=>{if(session&&role!=='admin'){role='admin';document.getElementById('userLabel').textContent='Admin';document.getElementById('adminUI').classList.remove('hidden');document.getElementById('repUI').classList.add('hidden');await loadAdminData();renderAll();}});
+ if(data.session){role='admin';document.getElementById('userLabel').textContent='Admin';document.getElementById('topbar').classList.remove('hidden');document.getElementById('adminUI').classList.remove('hidden');document.getElementById('repUI').classList.add('hidden');await loadAdminData();renderAll();}
+ sb.auth.onAuthStateChange(async (_event,session)=>{if(session&&role!=='admin'){role='admin';document.getElementById('userLabel').textContent='Admin';document.getElementById('topbar').classList.remove('hidden');document.getElementById('adminUI').classList.remove('hidden');document.getElementById('repUI').classList.add('hidden');await loadAdminData();renderAll();}});
 }
 initApp();
 </script>
