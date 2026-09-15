@@ -69,6 +69,8 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <div class="card stat"><div class="lbl">Today's Profit</div><div class="val good" id="todayProfit">₹0</div><div class="sub">Revenue − cost − expenses</div></div>
 <div class="card stat"><div class="lbl">Cars Serviced</div><div class="val" id="todayCars">0</div><div class="sub">Today's car sales</div></div>
 <div class="card stat"><div class="lbl">Bikes Serviced</div><div class="val" id="todayBikes">0</div><div class="sub">Today's bike sales</div></div>
+<div class="card stat"><div class="lbl">Décor Items Sold</div><div class="val" id="todayDecor">0</div><div class="sub">Today's décor sales</div></div>
+<div class="card stat"><div class="lbl">Alignments</div><div class="val" id="todayAlignments">0</div><div class="sub">Today's alignment sales</div></div>
 </div>
 <div class="three">
 <div class="card"><h2>Today's Category Sales</h2><div id="catToday"></div></div>
@@ -89,6 +91,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <div class="card"><h2>Record Sale</h2>
 <div class="form">
 <div><label>Category</label><select id="saleType" onchange="saleTypeChanged()"><option>Car Washing</option><option>Bike Washing</option><option>Alignment & Balancing</option><option>Décor Item</option><option>Other</option></select></div>
+<div><label>Sale Date</label><input id="saleDate" type="date"></div>
 <div><label id="saleVehicleLabel">Car Name</label><input id="saleCar" placeholder="e.g. Hyundai Creta"></div>
 <div id="saleDecorWrap" class="full hidden"><label>Décor Item Description</label><input id="saleDecorDesc" placeholder="Enter décor item description"></div>
 <div id="saleOtherWrap" class="full hidden"><label>Description</label><input id="saleOtherDesc" placeholder="Enter description"></div>
@@ -383,8 +386,10 @@ function getPaymentSplit(which,finalPrice){
  return {payment,cash:payment==='Cash'?finalPrice:0,upi:payment==='UPI'?finalPrice:0,card:payment==='Card'?finalPrice:0};
 }
 
-async function addSaleData(type,car,pid=null,discount=0,payment='Cash',customDesc='',customPrice=0,customCost=0,cashAmount=0,upiAmount=0,cardAmount=0){
- if(!car.trim()){alert('Enter the car name.');return false;}
+async function addSaleData(type,car,pid=null,discount=0,payment='Cash',customDesc='',customPrice=0,customCost=0,cashAmount=0,upiAmount=0,cardAmount=0,saleDate=today()){
+ if(!car.trim()){alert(type==='Bike Washing'?'Enter the bike name.':'Enter the car name.');return false;}
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(saleDate)){alert('Select a valid sale date.');return false;}
+ if(saleDate>today()){alert('Sale date cannot be in the future.');return false;}
  let svc=serviceByName(type),price=svc.sell,cost=svc.cost,item=type,description=null,productId=null;
  if(type==='Décor Item'){
   if(!customDesc.trim()){alert('Enter a décor item description.');return false;}
@@ -403,10 +408,10 @@ async function addSaleData(type,car,pid=null,discount=0,payment='Cash',customDes
  if(payment==='Cash and Online'){
   let splitTotal=Math.round((cashAmount+upiAmount)*100)/100;if(Math.abs(splitTotal-finalPrice)>0.01){alert('Cash + UPI total must equal the Final Amount of '+money(finalPrice)+'.');return false;}
  }else{cashAmount=payment==='Cash'?finalPrice:0;upiAmount=payment==='UPI'?finalPrice:0;cardAmount=payment==='Card'?finalPrice:0;}
- const payload={car_last4:car,category:type,product_id:productId,item_name:item,description,selling_price:price,discount_amount:discount,final_amount:finalPrice,payment_method:payment,cash_amount:cashAmount,upi_amount:upiAmount,card_amount:cardAmount,cost_amount:cost};
+ const payload={sale_date:saleDate,car_last4:car,category:type,product_id:productId,item_name:item,description,selling_price:price,discount_amount:discount,final_amount:finalPrice,payment_method:payment,cash_amount:cashAmount,upi_amount:upiAmount,card_amount:cardAmount,cost_amount:cost};
  const {error}=await sb.from('sales').insert(payload);
 if(error){console.error(error);alert('Sale could not be saved: '+error.message);return false;}
-const mapped=mapSale({...payload,id:null,sale_date:today(),sale_time:new Date().toISOString()});
+const mapped=mapSale({...payload,id:null,sale_time:new Date().toISOString()});
 sessionSales.unshift(mapped);
 if(role==='admin'){state.sales.unshift(mapped);}
 renderAll();return true;
@@ -415,6 +420,7 @@ renderAll();return true;
 
 async function addSale(){
  let t=document.getElementById('saleType').value,
+     saleDate=document.getElementById('saleDate').value||today(),
      car=document.getElementById('saleCar').value.trim(),
      pid=null,
      basePrice=Number(document.getElementById('salePrice').value||0),
@@ -427,9 +433,10 @@ async function addSale(){
  if(basePrice<=0){alert('Enter a valid selling amount.');return;}
  if((t==='Other'||t==='Décor Item')&&!desc.trim()){alert('Enter a description.');return;}
  let finalPrice=discountedAmount(basePrice,discount),split=getPaymentSplit('sale',finalPrice);
- if(await addSaleData(t,car,pid,discount,payment,desc,customPrice,customCost,split.cash,split.upi,split.card)){
+ if(await addSaleData(t,car,pid,discount,payment,desc,customPrice,customCost,split.cash,split.upi,split.card,saleDate)){
   alert('Sale submitted. Final amount: '+money(finalPrice));
   document.getElementById('saleCar').value='';
+  document.getElementById('saleDate').value=today();
   document.getElementById('saleDiscount').value=0;
   document.getElementById('saleDecorDesc').value='';
   document.getElementById('saleOtherDesc').value='';
@@ -492,7 +499,7 @@ async function deleteExpense(id){if(confirm('Delete this expense?')){const {erro
 
 function salesTable(arr,full=true){if(!arr.length)return '<div class="empty">No sales found.</div>';return `<div style="overflow:auto"><table><thead><tr><th>Date</th><th>Time</th><th>Vehicle</th><th>Category</th><th>Item</th><th>Sale</th><th>Discount</th><th>Final</th><th>Payment</th><th>Cost</th>${full?'<th>Profit</th>':''}</tr></thead><tbody>${arr.map(s=>`<tr><td>${s.date}</td><td>${s.time}</td><td><b>${s.car}</b><br><small>${s.type==='Bike Washing'?'Bike Name':'Car Name'}</small></td><td><span class="pill">${s.type}</span></td><td>${s.item}</td><td>${money(s.price)}</td><td>${money(s.discount||0)}</td><td>${money(s.finalPrice??s.price)}</td><td><span class="pill">${s.payment||'Cash'}</span>${s.payment==='Cash and Online'?`<br><small>Cash ${money(s.cashAmount)} + UPI ${money(s.upiAmount)}</small>`:''}</td><td>${money(s.cost)}</td>${full?`<td class="${(s.finalPrice??s.price)-s.cost>=0?'good':'bad'}">${money((s.finalPrice??s.price)-s.cost)}</td>`:''}</tr>`).join('')}</tbody></table></div>`}
 function expenseTable(arr){if(!arr.length)return '<div class="empty">No expenses found.</div>';return `<div style="overflow:auto"><table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th></tr></thead><tbody>${arr.map(e=>`<tr><td>${e.date} ${e.time}</td><td>${e.type}</td><td>${e.desc||'-'}</td><td>${money(e.amount)}</td></tr>`).join('')}</tbody></table></div>`}
-function renderDash(){let a=state.sales.filter(s=>s.date===today()),e=state.expenses.filter(x=>x.date===today()),rev=a.reduce((n,s)=>n+(s.finalPrice??s.price),0),cost=a.reduce((n,s)=>n+s.cost,0),ex=e.reduce((n,x)=>n+x.amount,0);let wash=serviceByName('Car Washing'),bike=serviceByName('Bike Washing'),align=serviceByName('Alignment & Balancing');document.getElementById('dashWashPrice').textContent=money(wash.sell);document.getElementById('dashBikeWashPrice').textContent=money(bike.sell);document.getElementById('dashAlignPrice').textContent=money(align.sell);document.getElementById('today').textContent=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});document.getElementById('todayRevenue').textContent=money(rev);document.getElementById('todayExpense').textContent=money(ex);document.getElementById('todayProfit').textContent=money(rev-cost-ex);document.getElementById('todayTx').textContent=a.length+' transaction'+(a.length===1?'':'s');document.getElementById('todayCars').textContent=a.filter(s=>s.type!=='Bike Washing').length;document.getElementById('todayBikes').textContent=a.filter(s=>s.type==='Bike Washing').length;let c={};a.forEach(s=>c[s.type]=(c[s.type]||0)+(s.finalPrice??s.price));document.getElementById('catToday').innerHTML=Object.keys(c).length?Object.entries(c).map(([k,v])=>`<p style="display:flex;justify-content:space-between"><span>${k}</span><b>${money(v)}</b></p>`).join(''):'<div class="empty">No sales today.</div>';let payCash=0,payUPI=0,payCard=0;a.forEach(s=>{if(s.payment==='Cash')payCash+=(s.finalPrice??s.price);else if(s.payment==='UPI')payUPI+=(s.finalPrice??s.price);else if(s.payment==='Card')payCard+=(s.finalPrice??s.price);else if(s.payment==='Cash and Online'){payCash+=Number(s.cashAmount||0);payUPI+=Number(s.upiAmount||0);}});document.getElementById('paymentToday').innerHTML=`<p style="display:flex;justify-content:space-between"><span>Cash</span><b>${money(payCash)}</b></p><p style="display:flex;justify-content:space-between"><span>UPI</span><b>${money(payUPI)}</b></p><p style="display:flex;justify-content:space-between"><span>Card</span><b>${money(payCard)}</b></p>`;document.getElementById('recentSales').innerHTML=salesTable(a.slice(0,8),false)}
+function renderDash(){let a=state.sales.filter(s=>s.date===today()),e=state.expenses.filter(x=>x.date===today()),rev=a.reduce((n,s)=>n+(s.finalPrice??s.price),0),cost=a.reduce((n,s)=>n+s.cost,0),ex=e.reduce((n,x)=>n+x.amount,0);let wash=serviceByName('Car Washing'),bike=serviceByName('Bike Washing'),align=serviceByName('Alignment & Balancing');document.getElementById('dashWashPrice').textContent=money(wash.sell);document.getElementById('dashBikeWashPrice').textContent=money(bike.sell);document.getElementById('dashAlignPrice').textContent=money(align.sell);document.getElementById('today').textContent=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});document.getElementById('todayRevenue').textContent=money(rev);document.getElementById('todayExpense').textContent=money(ex);document.getElementById('todayProfit').textContent=money(rev-cost-ex);document.getElementById('todayTx').textContent=a.length+' transaction'+(a.length===1?'':'s');document.getElementById('todayCars').textContent=a.filter(s=>s.type==='Car Washing').length;document.getElementById('todayBikes').textContent=a.filter(s=>s.type==='Bike Washing').length;document.getElementById('todayDecor').textContent=a.filter(s=>s.type==='Décor Item').length;document.getElementById('todayAlignments').textContent=a.filter(s=>s.type==='Alignment & Balancing').length;let c={};a.forEach(s=>c[s.type]=(c[s.type]||0)+(s.finalPrice??s.price));document.getElementById('catToday').innerHTML=Object.keys(c).length?Object.entries(c).map(([k,v])=>`<p style="display:flex;justify-content:space-between"><span>${k}</span><b>${money(v)}</b></p>`).join(''):'<div class="empty">No sales today.</div>';let payCash=0,payUPI=0,payCard=0;a.forEach(s=>{if(s.payment==='Cash')payCash+=(s.finalPrice??s.price);else if(s.payment==='UPI')payUPI+=(s.finalPrice??s.price);else if(s.payment==='Card')payCard+=(s.finalPrice??s.price);else if(s.payment==='Cash and Online'){payCash+=Number(s.cashAmount||0);payUPI+=Number(s.upiAmount||0);}});document.getElementById('paymentToday').innerHTML=`<p style="display:flex;justify-content:space-between"><span>Cash</span><b>${money(payCash)}</b></p><p style="display:flex;justify-content:space-between"><span>UPI</span><b>${money(payUPI)}</b></p><p style="display:flex;justify-content:space-between"><span>Card</span><b>${money(payCard)}</b></p>`;document.getElementById('recentSales').innerHTML=salesTable(a.slice(0,8),false)}
 function renderSales(){fillProductSelect('saleProduct');saleTypeChanged();document.getElementById('salesTable').innerHTML=salesTable(state.sales)}
 function renderProducts(){document.getElementById('productTable').innerHTML=state.products.length?`<div style="overflow:auto"><table><thead><tr><th>Product</th><th>Selling</th><th>Cost</th><th>Profit / Sale</th><th>Status</th><th></th></tr></thead><tbody>${state.products.map(p=>`<tr><td><b>${p.name}</b></td><td>${money(p.sell)}</td><td>${money(p.cost)}</td><td class="good">${money(p.sell-p.cost)}</td><td>${p.active?'Active':'Hidden'}</td><td>${p.active?`<button class="secondary" onclick="deleteProduct(${p.id})">Hide</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No products.</div>'}
 function renderExpenses(){const table=document.getElementById('expenseTable');if(table)table.innerHTML=expenseTable(state.expenses)}
@@ -502,6 +509,8 @@ function renderAll(){if(role==='admin'){renderDash();renderSales();renderProduct
 
 async function initApp(){
  document.getElementById('month').value=today().slice(0,7);
+ document.getElementById('saleDate').value=today();
+ document.getElementById('saleDate').max=today();
  document.getElementById('userLabel').textContent='Representative — direct access';
  document.getElementById('adminUI').classList.add('hidden');document.getElementById('repUI').classList.remove('hidden');document.getElementById('topbar').classList.add('hidden');
  await loadProducts();repTypeChanged();saleTypeChanged();paymentModeChanged('rep');paymentModeChanged('sale');renderAll();

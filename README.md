@@ -1,15 +1,11 @@
-Satish Reddy Car Decor — V2.26 PRODUCTION
+Satish Reddy Car Decor — V2.31 PRODUCTION
 
-Approved V2.26 production build.
-
-Bike Washing:
-- No fixed ₹600 default.
-- Representative enters the selling amount manually for every bike.
-- Bike Washing service row is stored at ₹0 so it does not prefill a price.
-- Cost remains ₹0 by default unless entered by Admin.
-
-IMPORTANT:
-1. Run supabase_v2_26_PRODUCTION_migration.sql in PRODUCTION Supabase first.
-2. Verify SQL completes successfully.
-3. Then upload index.html to the production GitHub Pages repository.
-4. Do not run TEST SQL against production.
+Changes:
+- Admin Dashboard: Cars Serviced, Bikes Serviced, Décor Items Sold, Alignments counters.
+- Cars Serviced counts only Car Washing.
+- Bikes Serviced counts only Bike Washing.
+- Décor Items Sold counts Décor Item transactions.
+- Alignments counts Alignment & Balancing transactions.
+- Admin Record Sale includes Sale Date, defaulting to today and allowing past dates only.
+- Representative sale flow is unchanged.
+- No database schema change required; uses existing sales.sale_date.
