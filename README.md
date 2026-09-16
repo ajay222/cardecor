@@ -1,9 +1,8 @@
-Satish Reddy Car Decor — V2.33 Dashboard Update
+Satish Reddy Car Decor — V2.34 Admin Login Update
 
-Base: V2.32 Reporting
+Base: V2.33 Monthly Dashboard Update
 
 Changes:
-- Admin Dashboard now shows This Month's Revenue (month-to-date).
-- Monthly revenue is calculated from all sales in the current calendar month using sale_date.
-- Existing V2.32 Monthly Report, transaction drill-down, Excel export, sales, expenses, and all other features are preserved.
+- Admin login on the Representative page now submits when Enter is pressed in the Admin Email or Password field.
+- Existing V2.33 monthly revenue dashboard card and V2.32 Monthly Reporting features are preserved.
 - No Supabase database/schema changes.

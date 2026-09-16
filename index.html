@@ -71,7 +71,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <button onclick="tab('products',this)">Products</button><button onclick="tab('services',this)">Services</button>
 <button onclick="tab('expenses',this)">Expenses</button>
 <button onclick="tab('reports',this)">Monthly Report</button>
-</nav>
+</nav><br>
 
 <section id="dash">
 <div class="title"><h2>Admin Dashboard</h2><span class="badge" id="today"></span></div>
@@ -85,7 +85,6 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <div class="card stat"><div class="lbl">Décor Items Sold</div><div class="val" id="todayDecor">0</div><div class="sub">Today's décor sales</div></div>
 <div class="card stat"><div class="lbl">Alignments</div><div class="val" id="todayAlignments">0</div><div class="sub">Today's alignment sales</div></div>
 </div>
-  <br>
 <div class="three">
 <div class="card"><h2>Today's Category Sales</h2><div id="catToday"></div></div>
 <div class="card"><h2>Today's Payment Collection</h2><div id="paymentToday"></div></div>
@@ -231,8 +230,8 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <button class="secondary" style="width:100%;padding:11px" onclick="openAdminLogin()">Admin Login</button>
 <div id="adminLoginInline" class="hidden" style="margin-top:12px">
 <div class="form">
-<div><label>Admin Email</label><input id="inlineAdminUser" type="email" placeholder="admin@example.com"></div>
-<div><label>Password</label><input id="inlineAdminPass" type="password" placeholder="Your admin password"></div>
+<div><label>Admin Email</label><input id="inlineAdminUser" type="email" placeholder="admin@example.com" onkeydown="adminLoginKey(event)"></div>
+<div><label>Password</label><input id="inlineAdminPass" type="password" placeholder="Your admin password" onkeydown="adminLoginKey(event)"></div>
 </div>
 <button class="primary" onclick="loginAdminInline()">Open Admin Dashboard</button>
 </div>
@@ -306,6 +305,12 @@ async function loadAdminData(){
 async function openAdminLogin(){
  document.getElementById('adminLoginInline').classList.toggle('hidden');
  document.getElementById('inlineAdminUser').focus();
+}
+function adminLoginKey(event){
+ if(event.key==='Enter'){
+  event.preventDefault();
+  loginAdminInline();
+ }
 }
 async function loginAdminInline(){
  const email=document.getElementById('inlineAdminUser').value.trim();
