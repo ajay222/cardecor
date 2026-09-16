@@ -1,11 +1,10 @@
-Satish Reddy Car Decor — V2.31 PRODUCTION
+Satish Reddy Car Decor — V2.32 Reporting Update
+
+Base: V2.31 Production
 
 Changes:
-- Admin Dashboard: Cars Serviced, Bikes Serviced, Décor Items Sold, Alignments counters.
-- Cars Serviced counts only Car Washing.
-- Bikes Serviced counts only Bike Washing.
-- Décor Items Sold counts Décor Item transactions.
-- Alignments counts Alignment & Balancing transactions.
-- Admin Record Sale includes Sale Date, defaulting to today and allowing past dates only.
-- Representative sale flow is unchanged.
-- No database schema change required; uses existing sales.sale_date.
+- Monthly Report category transaction counts are clickable.
+- Clicking a category transaction count opens all transactions for that category and selected month.
+- Added Download Excel button to Monthly Report.
+- Excel workbook includes Summary, Category Breakdown, Sales Transactions, Expenses, and Cost Details sheets.
+- No Supabase database/schema changes.

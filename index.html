@@ -44,6 +44,18 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
   }
 }
 
+
+/* V2.32: Monthly report drill-down + Excel export */
+.report-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.report-actions .secondary{white-space:nowrap}
+.report-link{border:0;background:transparent;color:var(--accent);font-weight:850;cursor:pointer;padding:4px 7px;border-radius:7px;text-decoration:underline;text-underline-offset:2px}
+.report-link:hover{background:#e7f5f3}
+.modal-backdrop{position:fixed;inset:0;background:rgba(11,19,32,.48);display:grid;place-items:center;padding:18px;z-index:100}
+.modal{width:min(1050px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:16px;border:1px solid var(--line);box-shadow:0 24px 80px rgba(0,0,0,.24);padding:18px}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.modal-head h2{margin:0}.modal-close{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 11px;cursor:pointer;font-weight:800}
+@media(max-width:520px){.report-actions{width:100%}.report-actions input{flex:1;min-width:150px}.report-actions .secondary{flex:1}}
+
 </style>
 </head>
 <body>
@@ -159,7 +171,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 </section>
 
 <section id="reports" class="hidden">
-<div class="card"><div class="title"><h2>Monthly Report</h2><input id="month" type="month" style="max-width:175px" onchange="renderReport()"></div>
+<div class="card"><div class="title"><h2>Monthly Report</h2><div class="report-actions"><input id="month" type="month" style="max-width:175px" onchange="renderReport()"><button type="button" class="secondary" onclick="downloadMonthlyExcel()">⬇ Download Excel</button></div></div>
 <div class="grid">
 <div class="card stat"><div class="lbl">Net Sales</div><div class="val" id="mRevenue">₹0</div></div>
 <div class="card stat"><div class="lbl">Product / Service Cost</div><div class="val" id="mCost">₹0</div></div>
@@ -169,6 +181,17 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 <div style="margin-top:15px" id="reportBreakdown"></div>
 </div>
 </section>
+</div>
+
+
+<div id="reportModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle" onclick="if(event.target===this)closeReportModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div><h2 id="reportModalTitle">Transactions</h2><div class="note" id="reportModalNote"></div></div>
+      <button type="button" class="modal-close" onclick="closeReportModal()">Close</button>
+    </div>
+    <div id="reportModalBody"></div>
+  </div>
 </div>
 
 <div id="repUI">
@@ -217,6 +240,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;p
 </div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 const SUPABASE_URL="https://zpxugysbuxkrwfbenvzd.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_a7eln6vRwEAQbdbreJ_XHw_uxcCbOHe";
@@ -503,7 +527,65 @@ function renderDash(){let a=state.sales.filter(s=>s.date===today()),e=state.expe
 function renderSales(){fillProductSelect('saleProduct');saleTypeChanged();document.getElementById('salesTable').innerHTML=salesTable(state.sales)}
 function renderProducts(){document.getElementById('productTable').innerHTML=state.products.length?`<div style="overflow:auto"><table><thead><tr><th>Product</th><th>Selling</th><th>Cost</th><th>Profit / Sale</th><th>Status</th><th></th></tr></thead><tbody>${state.products.map(p=>`<tr><td><b>${p.name}</b></td><td>${money(p.sell)}</td><td>${money(p.cost)}</td><td class="good">${money(p.sell-p.cost)}</td><td>${p.active?'Active':'Hidden'}</td><td>${p.active?`<button class="secondary" onclick="deleteProduct(${p.id})">Hide</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No products.</div>'}
 function renderExpenses(){const table=document.getElementById('expenseTable');if(table)table.innerHTML=expenseTable(state.expenses)}
-function renderReport(){let m=document.getElementById('month').value||today().slice(0,7),a=state.sales.filter(s=>s.date.startsWith(m)),e=state.expenses.filter(x=>x.date.startsWith(m)),rev=a.reduce((n,s)=>n+(s.finalPrice??s.price),0),cost=a.reduce((n,s)=>n+s.cost,0),ex=e.reduce((n,x)=>n+x.amount,0);document.getElementById('mRevenue').textContent=money(rev);document.getElementById('mCost').textContent=money(cost);document.getElementById('mExpense').textContent=money(ex);document.getElementById('mProfit').textContent=money(rev-cost-ex);let c={};a.forEach(s=>{c[s.type]??={sale:0,cost:0,count:0};c[s.type].sale+=(s.finalPrice??s.price);c[s.type].cost+=s.cost;c[s.type].count++});let pay={Cash:0,UPI:0,Card:0};a.forEach(s=>{if(s.payment==='Cash')pay.Cash+=(s.finalPrice??s.price);else if(s.payment==='UPI')pay.UPI+=(s.finalPrice??s.price);else if(s.payment==='Card')pay.Card+=(s.finalPrice??s.price);else if(s.payment==='Cash and Online'){pay.Cash+=Number(s.cashAmount||0);pay.UPI+=Number(s.upiAmount||0);}});document.getElementById('reportBreakdown').innerHTML=`<div class="three" style="margin-bottom:15px"><div class="metric">Cash Collection<b>${money(pay.Cash)}</b></div><div class="metric">UPI Collection<b>${money(pay.UPI)}</b></div><div class="metric">Card Collection<b>${money(pay.Card)}</b></div><div class="metric">Total Collection<b>${money(rev)}</b></div></div>`+(Object.keys(c).length?`<h3>Category Breakdown</h3><div style="overflow:auto"><table><thead><tr><th>Category</th><th>Transactions</th><th>Sales</th><th>Cost</th><th>Profit</th></tr></thead><tbody>${Object.entries(c).map(([k,v])=>`<tr><td>${k}</td><td>${v.count}</td><td>${money(v.sale)}</td><td>${money(v.cost)}</td><td class="good">${money(v.sale-v.cost)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No sales for this month.</div>')}
+function escapeHtml(value){return String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function currentReportData(){
+ let m=document.getElementById('month').value||today().slice(0,7);
+ let a=state.sales.filter(s=>String(s.date||'').startsWith(m));
+ let e=state.expenses.filter(x=>String(x.date||'').startsWith(m));
+ let rev=a.reduce((n,s)=>n+(s.finalPrice??s.price),0),cost=a.reduce((n,s)=>n+s.cost,0),ex=e.reduce((n,x)=>n+x.amount,0);
+ let c={};
+ a.forEach(s=>{c[s.type]??={sale:0,cost:0,count:0};c[s.type].sale+=(s.finalPrice??s.price);c[s.type].cost+=s.cost;c[s.type].count++});
+ let pay={Cash:0,UPI:0,Card:0};
+ a.forEach(s=>{if(s.payment==='Cash')pay.Cash+=(s.finalPrice??s.price);else if(s.payment==='UPI')pay.UPI+=(s.finalPrice??s.price);else if(s.payment==='Card')pay.Card+=(s.finalPrice??s.price);else if(s.payment==='Cash and Online'){pay.Cash+=Number(s.cashAmount||0);pay.UPI+=Number(s.upiAmount||0);}});
+ return {m,a,e,rev,cost,ex,profit:rev-cost-ex,c,pay};
+}
+function renderReport(){
+ const r=currentReportData();
+ document.getElementById('mRevenue').textContent=money(r.rev);document.getElementById('mCost').textContent=money(r.cost);document.getElementById('mExpense').textContent=money(r.ex);document.getElementById('mProfit').textContent=money(r.profit);
+ document.getElementById('reportBreakdown').innerHTML=`<div class="three" style="margin-bottom:15px"><div class="metric">Cash Collection<b>${money(r.pay.Cash)}</b></div><div class="metric">UPI Collection<b>${money(r.pay.UPI)}</b></div><div class="metric">Card Collection<b>${money(r.pay.Card)}</b></div><div class="metric">Total Collection<b>${money(r.rev)}</b></div></div>`+
+ (Object.keys(r.c).length?`<h3>Category Breakdown</h3><div style="overflow:auto"><table><thead><tr><th>Category</th><th>Transactions</th><th>Sales</th><th>Cost</th><th>Profit</th></tr></thead><tbody>${Object.entries(r.c).map(([k,v])=>`<tr><td>${escapeHtml(k)}</td><td><button type="button" class="report-link" onclick='showMonthlyTransactions(${JSON.stringify(k)})' title="View all ${v.count} transactions">${v.count}</button></td><td>${money(v.sale)}</td><td>${money(v.cost)}</td><td class="good">${money(v.sale-v.cost)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">No sales for this month.</div>')+
+ `<div class="note" style="margin-top:10px">Click any transaction count to view all transactions in that category for the selected month.</div>`;
+}
+function showMonthlyTransactions(category){
+ const r=currentReportData();
+ const rows=r.a.filter(s=>s.type===category);
+ document.getElementById('reportModalTitle').textContent=category+' — Transactions';
+ document.getElementById('reportModalNote').textContent=new Date(r.m+'-01T00:00:00').toLocaleDateString('en-IN',{month:'long',year:'numeric'})+' • '+rows.length+' transaction'+(rows.length===1?'':'s');
+ document.getElementById('reportModalBody').innerHTML=salesTable(rows,true);
+ document.getElementById('reportModal').classList.remove('hidden');
+ document.body.style.overflow='hidden';
+}
+function closeReportModal(){document.getElementById('reportModal').classList.add('hidden');document.body.style.overflow='';}
+function downloadMonthlyExcel(){
+ const r=currentReportData();
+ if(typeof XLSX==='undefined'){alert('Excel export library could not be loaded. Please check your internet connection and try again.');return;}
+ const monthLabel=new Date(r.m+'-01T00:00:00').toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+ const wb=XLSX.utils.book_new();
+ const summary=[
+  ['Satish Reddy Car Decor — Monthly Report'],
+  ['Report Month',monthLabel],
+  [],
+  ['Metric','Amount (₹)'],
+  ['Net Sales',r.rev],['Product / Service Cost',r.cost],['Other Expenses',r.ex],['Net Profit',r.profit],
+  [],['Payment Collection','Amount (₹)'],['Cash',r.pay.Cash],['UPI',r.pay.UPI],['Card',r.pay.Card],['Total Collection',r.rev]
+ ];
+ const categoryRows=[['Category','Transactions','Sales (₹)','Cost (₹)','Profit (₹)']];
+ Object.entries(r.c).forEach(([k,v])=>categoryRows.push([k,v.count,v.sale,v.cost,v.sale-v.cost]));
+ const salesRows=[['Date','Time','Vehicle','Category','Item','Selling Price (₹)','Discount (₹)','Final Amount (₹)','Payment Mode','Cash (₹)','UPI (₹)','Card (₹)','Cost (₹)','Profit (₹)','Description']];
+ r.a.forEach(s=>salesRows.push([s.date,s.time,s.car,s.type,s.item,s.price,s.discount||0,s.finalPrice??s.price,s.payment||'Cash',s.cashAmount||0,s.upiAmount||0,s.cardAmount||0,s.cost,(s.finalPrice??s.price)-s.cost,s.description||'']));
+ const expenseRows=[['Date','Time','Expense Type','Description','Amount (₹)']];
+ r.e.forEach(e=>expenseRows.push([e.date,e.time,e.type,e.desc||'',e.amount]));
+ const costRows=[['Date','Time','Category','Vehicle','Item','Product / Service Cost (₹)']];
+ r.a.forEach(s=>costRows.push([s.date,s.time,s.type,s.car,s.item,s.cost]));
+ function addSheet(name,data,widths){const ws=XLSX.utils.aoa_to_sheet(data);ws['!cols']=widths.map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws,name);}
+ addSheet('Summary',summary,[42,20]);
+ addSheet('Category Breakdown',categoryRows,[28,16,18,18,18]);
+ addSheet('Sales Transactions',salesRows,[13,13,24,24,30,18,16,18,20,14,14,14,14,14,35]);
+ addSheet('Expenses',expenseRows,[13,13,22,40,18]);
+ addSheet('Cost Details',costRows,[13,13,24,24,30,22]);
+ const safeMonth=r.m.replace(/[^0-9-]/g,'-');
+ XLSX.writeFile(wb,`Satish_Reddy_Car_Decor_Monthly_Report_${safeMonth}.xlsx`);
+}
 function renderRep(){repTypeChanged();let a=sessionSales.filter(s=>s.date===today());document.getElementById('repRecent').innerHTML=salesTable(a.slice(0,10),false)}
 function renderAll(){if(role==='admin'){renderDash();renderSales();renderProducts();renderServices();renderExpenses();renderReport()}else renderRep()}
 
